@@ -1,0 +1,194 @@
+<?php
+/**
+ * Admin Dashboard
+ */
+require_once __DIR__ . '/../../backend/config/config.php';
+require_once __DIR__ . '/../../backend/config/database.php';
+require_once __DIR__ . '/../../backend/includes/functions.php';
+
+startSessionIfNotStarted();
+
+// 管理者認証
+// if (empty($_SESSION['admin_id'])) {
+//     header('Location: login.php');
+//     exit();
+// }
+
+$database = new Database();
+$db = $database->getConnection();
+
+// 最終パスワード変更情報取得
+$stmt = $db->prepare("
+    SELECT a.last_password_change, a.last_password_changed_by, 
+           changed_by.email as changed_by_email
+    FROM admins a
+    LEFT JOIN admins changed_by ON a.last_password_changed_by = changed_by.id
+    WHERE a.id = ?
+");
+$stmt->execute([$_SESSION['admin_id']]);
+$adminInfo = $stmt->fetch();
+
+// ユーザー一覧取得（検索・ソート対応）
+$page = (int)($_GET['page'] ?? 1);
+$limit = 50;
+$offset = ($page - 1) * $limit;
+
+$where = [];
+$params = [];
+
+if (!empty($_GET['payment_status'])) {
+    $where[] = "p.payment_status = ?";
+    $params[] = $_GET['payment_status'];
+}
+
+if (isset($_GET['is_open'])) {
+    $where[] = "bc.is_published = ?";
+    $params[] = (int)$_GET['is_open'];
+}
+
+$whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+// Map sort fields from request to database fields
+$sortFieldMap = [
+    'payment_confirmed' => 'payment_confirmed',
+    'is_open' => 'bc.is_published',
+    'company_name' => 'bc.company_name',
+    'name' => 'bc.name',
+    'mobile_phone' => 'bc.mobile_phone',
+    'email' => 'u.email',
+    'monthly_views' => 'monthly_views',
+    'total_views' => 'total_views',
+    'url_slug' => 'bc.url_slug',
+    'registered_at' => 'bc.created_at',
+    'last_login_at' => 'u.last_login_at'
+];
+
+$requestedSort = $_GET['sort'] ?? 'registered_at';
+$sortField = $sortFieldMap[$requestedSort] ?? 'bc.created_at';
+$sortOrder = strtoupper($_GET['order'] ?? 'DESC');
+
+$sql = "
+    SELECT 
+        bc.id,
+        u.email,
+        bc.company_name,
+        bc.name,
+        bc.mobile_phone,
+        bc.url_slug,
+        bc.is_published as is_open,
+        CASE WHEN p.payment_status = 'completed' THEN 1 ELSE 0 END as payment_confirmed,
+        COUNT(DISTINCT al.id) as total_views,
+        SUM(CASE WHEN al.accessed_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) THEN 1 ELSE 0 END) as monthly_views,
+        bc.created_at as registered_at,
+        u.last_login_at
+    FROM business_cards bc
+    JOIN users u ON bc.user_id = u.id
+    LEFT JOIN payments p ON bc.id = p.business_card_id AND p.payment_status = 'completed'
+    LEFT JOIN access_logs al ON bc.id = al.business_card_id
+    $whereClause
+    GROUP BY bc.id
+    ORDER BY $sortField $sortOrder
+    LIMIT ? OFFSET ?
+";
+
+$params[] = $limit;
+$params[] = $offset;
+
+$stmt = $db->prepare($sql);
+$stmt->execute($params);
+$users = $stmt->fetchAll();
+?>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - 不動産AI名刺</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>不動産AI名刺 管理画面</h1>
+            <div class="admin-info">
+                <p>最終変更日時: <?php echo htmlspecialchars($adminInfo['last_password_change'] ?? ''); ?></p>
+                <p>変更者ID: <?php echo htmlspecialchars($adminInfo['changed_by_email'] ?? ''); ?></p>
+                <a href="logout.php" class="btn-logout">ログアウト</a>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div class="filters">
+                <form method="GET" class="filter-form">
+                    <select name="payment_status">
+                        <option value="">入金状況</option>
+                        <option value="completed" <?php echo ($_GET['payment_status'] ?? '') === 'completed' ? 'selected' : ''; ?>>入金済み</option>
+                        <option value="pending" <?php echo ($_GET['payment_status'] ?? '') === 'pending' ? 'selected' : ''; ?>>未入金</option>
+                    </select>
+                    <select name="is_open">
+                        <option value="">公開状況</option>
+                        <option value="1" <?php echo ($_GET['is_open'] ?? '') === '1' ? 'selected' : ''; ?>>公開中</option>
+                        <option value="0" <?php echo ($_GET['is_open'] ?? '') === '0' ? 'selected' : ''; ?>>非公開</option>
+                    </select>
+                    <button type="submit" class="btn-filter">検索</button>
+                    <a href="export-csv.php" class="btn-export">CSV出力</a>
+                </form>
+            </div>
+
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="payment_confirmed">入金</th>
+                        <th class="sortable" data-sort="is_open">OPEN</th>
+                        <th class="sortable" data-sort="company_name">社名</th>
+                        <th class="sortable" data-sort="name">名前</th>
+                        <th class="sortable" data-sort="mobile_phone">携帯</th>
+                        <th class="sortable" data-sort="email">メール</th>
+                        <th class="sortable" data-sort="monthly_views">表示回数（1か月）</th>
+                        <th class="sortable" data-sort="total_views">表示回数（累積）</th>
+                        <th class="sortable" data-sort="url_slug">名刺URL</th>
+                        <th class="sortable" data-sort="registered_at">登録日</th>
+                        <th class="sortable" data-sort="last_login_at">最終ログイン</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="payment-checkbox" 
+                                   data-bc-id="<?php echo $user['id']; ?>"
+                                   <?php echo $user['payment_confirmed'] ? 'checked' : ''; ?>>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="open-checkbox" 
+                                   data-bc-id="<?php echo $user['id']; ?>"
+                                   <?php echo $user['is_open'] ? 'checked' : ''; ?>>
+                        </td>
+                        <td><?php echo htmlspecialchars($user['company_name'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($user['mobile_phone'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo $user['monthly_views']; ?></td>
+                        <td><?php echo $user['total_views']; ?></td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>/frontend/card.php?slug=<?php echo htmlspecialchars($user['url_slug']); ?>" target="_blank">
+                                <?php echo htmlspecialchars(BASE_URL . '/card.php?slug=' . $user['url_slug']); ?>
+                            </a>
+                        </td>
+                        <td><?php echo htmlspecialchars($user['registered_at']); ?></td>
+                        <td><?php echo htmlspecialchars($user['last_login_at'] ?? ''); ?></td>
+                        <td>
+                            <button class="btn-action" onclick="confirmPayment(<?php echo $user['id']; ?>)">入金確認</button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>
+
