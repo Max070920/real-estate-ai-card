@@ -4,7 +4,7 @@
  */
 class Database {
     private $host = 'localhost';
-    private $db_name = 'real_estate_ai_business_card';
+    private $db_name = 'real_estate_card';
     private $username = 'root';
     private $password = '';
     private $charset = 'utf8mb4';
