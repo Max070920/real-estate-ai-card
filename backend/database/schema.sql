@@ -223,14 +223,23 @@ CREATE TABLE IF NOT EXISTS tech_tool_url_counter (
 INSERT INTO tech_tool_url_counter (current_number) VALUES (5001);
 
 -- 初期管理者アカウント（パスワード: admin123 - 本番環境で変更必須）
+-- 注意: スキーマ実行後、backend/scripts/update_admin_password.php を実行してパスワードを設定してください
+-- Note: After running schema, execute backend/scripts/update_admin_password.php to set the password
+DELETE FROM admins WHERE email = 'admin@rchukai.jp';
+
+-- このハッシュはプレースホルダーです。実際のパスワードを設定するには update_admin_password.php を実行してください
+-- This hash is a placeholder. Run update_admin_password.php to set the actual password
 INSERT INTO admins (email, password_hash, role) 
 VALUES ('admin@rchukai.jp', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
+
+
 -- 通知メール設定
-INSERT INTO settings (setting_key, setting_value, description) VALUES
+INSERT IGNORE INTO settings (setting_key, setting_value, description) VALUES
 ('notification_email', 'web@rchukai.jp', '新規登録通知メール送信先'),
 ('base_url', 'https://www.ai-fcard.com', 'ベースURL'),
 ('stripe_publishable_key', '', 'Stripe公開キー'),
 ('stripe_secret_key', '', 'Stripeシークレットキー'),
 ('stripe_webhook_secret', '', 'Stripe Webhookシークレット');
+
 

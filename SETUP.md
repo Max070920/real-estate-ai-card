@@ -20,15 +20,15 @@
 mysql -u root -p
 
 # データベース作成
-CREATE DATABASE real_estate_ai_business_card CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE business_card CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # スキーマのインポート
-mysql -u root -p real_estate_ai_business_card < backend/database/schema.sql
+mysql -u root -p business_card < backend/database/schema.sql
 ```
 
 またはphpMyAdminを使用:
 1. phpMyAdminにアクセス (http://localhost/phpmyadmin)
-2. 新しいデータベース `real_estate_ai_business_card` を作成
+2. 新しいデータベース `business_card` を作成
 3. スキーマファイル (`backend/database/schema.sql`) をインポート
 
 ## 3. 設定ファイルの編集
@@ -37,7 +37,7 @@ mysql -u root -p real_estate_ai_business_card < backend/database/schema.sql
 
 ```php
 private $host = 'localhost';
-private $db_name = 'real_estate_ai_business_card';
+private $db_name = 'business_card';
 private $username = 'root';  // 必要に応じて変更
 private $password = '';       // 必要に応じて変更
 ```

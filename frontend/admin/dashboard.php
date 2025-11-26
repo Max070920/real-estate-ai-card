@@ -8,11 +8,11 @@ require_once __DIR__ . '/../../backend/includes/functions.php';
 
 startSessionIfNotStarted();
 
-// 管理者認証
-// if (empty($_SESSION['admin_id'])) {
-//     header('Location: login.php');
-//     exit();
-// }
+//管理者認証
+if (empty($_SESSION['admin_id'])) {
+    header('Location: login.php');
+    exit();
+}
 
 $database = new Database();
 $db = $database->getConnection();
