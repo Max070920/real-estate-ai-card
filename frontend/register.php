@@ -91,6 +91,15 @@ $prefectures = [
                     </div>
                 </div>
             </div>
+            <button type="button" id="preview-btn" class="btn-preview">プレビュー</button>
+
+            <!-- Preview Container -->
+            <div id="preview-container" class="preview-container" style="display: none;">
+                <div class="preview-header">
+                    <button type="button" id="close-preview-btn" class="btn-close-preview">編集に戻る</button>
+                </div>
+                <div id="preview-content" class="preview-content"></div>
+            </div>
 
             <!-- Step 1: Account Registration -->
             <div id="step-1" class="register-step active">

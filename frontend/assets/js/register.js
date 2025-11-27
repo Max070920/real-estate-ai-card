@@ -12,17 +12,21 @@ function goToStep(step) {
     // Hide all steps
     document.querySelectorAll('.register-step').forEach(el => {
         el.classList.remove('active');
+        el.style.display = 'none';
     });
     
     // Show target step
     document.getElementById(`step-${step}`).classList.add('active');
+    document.getElementById(`step-${step}`).style.display = 'block';
     
     // Update step indicator
     document.querySelectorAll('.step').forEach((el, index) => {
         if (index + 1 <= step) {
-            el.classList.add('active');
+            el.classList.add('active'); 
+            el.style.display = 'block';
         } else {
-            el.classList.remove('active');
+            el.classList.remove('active'); 
+            el.style.display = 'none';
         }
     });
     
@@ -581,6 +585,447 @@ function loadPreview() {
     }
 }
 
+// Preview functionality
+let isPreviewMode = false;
+let storedFormData = {};
+
+// Collect all form data
+function collectFormData() {
+    const data = {};
+    
+    // Step 1: Account info
+    const step1Form = document.getElementById('register-form');
+    if (step1Form) {
+        const formData = new FormData(step1Form);
+        data.email = formData.get('email') || '';
+        data.phone_number = formData.get('phone_number') || '';
+    }
+    
+    // Step 2: Header & Greeting
+    const step2Form = document.getElementById('header-greeting-form');
+    if (step2Form) {
+        const formData = new FormData(step2Form);
+        data.company_name = formData.get('company_name') || '';
+        
+        // Logo
+        const logoInput = document.getElementById('company_logo');
+        if (logoInput && logoInput.files[0]) {
+            data.company_logo = URL.createObjectURL(logoInput.files[0]);
+        } else {
+            const logoPreview = document.querySelector('#logo-upload .upload-preview img');
+            if (logoPreview) data.company_logo = logoPreview.src;
+        }
+        
+        // Profile photo
+        const photoInput = document.getElementById('profile_photo_header');
+        if (photoInput && photoInput.files[0]) {
+            data.profile_photo = URL.createObjectURL(photoInput.files[0]);
+        } else {
+            const photoPreview = document.querySelector('#photo-upload-header .upload-preview img');
+            if (photoPreview) data.profile_photo = photoPreview.src;
+        }
+        
+        // Greetings
+        data.greetings = [];
+        const greetingTitles = formData.getAll('greeting_title[]');
+        const greetingContents = formData.getAll('greeting_content[]');
+        greetingTitles.forEach((title, index) => {
+            if (title && greetingContents[index]) {
+                data.greetings.push({
+                    title: title,
+                    content: greetingContents[index]
+                });
+            }
+        });
+    }
+    
+    // Step 3: Company Profile
+    const step3Form = document.getElementById('company-profile-form');
+    if (step3Form) {
+        const formData = new FormData(step3Form);
+        data.company_name_profile = formData.get('company_name_profile') || '';
+        data.company_postal_code = formData.get('company_postal_code') || '';
+        data.company_address = formData.get('company_address') || '';
+        data.company_phone = formData.get('company_phone') || '';
+        data.company_website = formData.get('company_website') || '';
+        data.real_estate_license_prefecture = formData.get('real_estate_license_prefecture') || '';
+        data.real_estate_license_renewal_number = formData.get('real_estate_license_renewal_number') || '';
+        data.real_estate_license_registration_number = formData.get('real_estate_license_registration_number') || '';
+    }
+    
+    // Step 4: Personal Info
+    const step4Form = document.getElementById('personal-info-form');
+    if (step4Form) {
+        const formData = new FormData(step4Form);
+        data.name = formData.get('name') || '';
+        data.name_romaji = formData.get('name_romaji') || '';
+        data.branch_department = formData.get('branch_department') || '';
+        data.position = formData.get('position') || '';
+        data.mobile_phone = formData.get('mobile_phone') || '';
+        data.birth_date = formData.get('birth_date') || '';
+        data.current_residence = formData.get('current_residence') || '';
+        data.hometown = formData.get('hometown') || '';
+        data.alma_mater = formData.get('alma_mater') || '';
+        data.hobbies = formData.get('hobbies') || '';
+        data.free_input_text = formData.get('free_input_text') || '';
+        data.free_image_link = formData.get('free_image_link') || '';
+        
+        // Qualifications
+        const qualifications = [];
+        if (formData.get('qualification_takken')) qualifications.push('宅地建物取引士');
+        if (formData.get('qualification_kenchikushi')) qualifications.push('建築士');
+        const otherQuals = formData.get('qualifications_other');
+        if (otherQuals) qualifications.push(otherQuals);
+        data.qualifications = qualifications.join('、');
+        
+        // Free image
+        const freeImageInput = document.getElementById('free_image');
+        if (freeImageInput && freeImageInput.files[0]) {
+            data.free_image = URL.createObjectURL(freeImageInput.files[0]);
+        } else {
+            const freeImagePreview = document.querySelector('#free-image-upload .upload-preview img');
+            if (freeImagePreview) data.free_image = freeImagePreview.src;
+        }
+    }
+    
+    // Step 5: Tech Tools
+    const step5Form = document.getElementById('tech-tools-form');
+    if (step5Form) {
+        const formData = new FormData(step5Form);
+        data.tech_tools = formData.getAll('tech_tools[]') || [];
+    }
+    
+    // Step 6: Communication
+    const step6Form = document.getElementById('communication-form');
+    if (step6Form) {
+        const formData = new FormData(step6Form);
+        data.communication = {};
+        
+        // Message apps
+        if (formData.get('comm_line')) {
+            data.communication.line = {
+                name: 'LINE',
+                id: formData.get('comm_line_id') || '',
+                icon: '💬'
+            };
+        }
+        if (formData.get('comm_messenger')) {
+            data.communication.messenger = {
+                name: 'Messenger',
+                id: formData.get('comm_messenger_id') || '',
+                icon: '💬'
+            };
+        }
+        if (formData.get('comm_whatsapp')) {
+            data.communication.whatsapp = {
+                name: 'WhatsApp',
+                id: formData.get('comm_whatsapp_id') || '',
+                icon: '💬'
+            };
+        }
+        if (formData.get('comm_chatwork')) {
+            data.communication.chatwork = {
+                name: 'Chatwork',
+                id: formData.get('comm_chatwork_id') || '',
+                icon: '💬'
+            };
+        }
+        
+        // SNS
+        if (formData.get('comm_instagram')) {
+            data.communication.instagram = {
+                name: 'Instagram',
+                url: formData.get('comm_instagram_url') || '',
+                icon: '📷'
+            };
+        }
+        if (formData.get('comm_facebook')) {
+            data.communication.facebook = {
+                name: 'Facebook',
+                url: formData.get('comm_facebook_url') || '',
+                icon: '📘'
+            };
+        }
+        if (formData.get('comm_twitter')) {
+            data.communication.twitter = {
+                name: 'X (Twitter)',
+                url: formData.get('comm_twitter_url') || '',
+                icon: '🐦'
+            };
+        }
+        if (formData.get('comm_youtube')) {
+            data.communication.youtube = {
+                name: 'YouTube',
+                url: formData.get('comm_youtube_url') || '',
+                icon: '📺'
+            };
+        }
+        if (formData.get('comm_tiktok')) {
+            data.communication.tiktok = {
+                name: 'TikTok',
+                url: formData.get('comm_tiktok_url') || '',
+                icon: '🎵'
+            };
+        }
+        if (formData.get('comm_note')) {
+            data.communication.note = {
+                name: 'note',
+                url: formData.get('comm_note_url') || '',
+                icon: '📝'
+            };
+        }
+        if (formData.get('comm_pinterest')) {
+            data.communication.pinterest = {
+                name: 'Pinterest',
+                url: formData.get('comm_pinterest_url') || '',
+                icon: '📌'
+            };
+        }
+        if (formData.get('comm_threads')) {
+            data.communication.threads = {
+                name: 'Threads',
+                url: formData.get('comm_threads_url') || '',
+                icon: '🧵'
+            };
+        }
+    }
+    
+    return data;
+}
+
+// Generate preview HTML
+function generatePreview(data) {
+    const techToolNames = {
+        'mdb': '全国マンションデータベース',
+        'rlp': '物件提案ロボ',
+        'llp': '土地情報ロボ',
+        'ai': 'AIマンション査定',
+        'slp': 'セルフィン',
+        'olp': 'オーナーコネクト'
+    };
+    
+    const techToolIcons = {
+        'mdb': '🏢',
+        'rlp': '🤖',
+        'llp': '🏞️',
+        'ai': '📊',
+        'slp': '🔍',
+        'olp': '💼'
+    };
+    
+    let html = '<div class="preview-card">';
+    
+    // Header Section
+    html += '<div class="preview-header-section">';
+    if (data.company_logo) {
+        html += `<div class="preview-logo"><img src="${escapeHtml(data.company_logo)}" alt="ロゴ"></div>`;
+    }
+    const companyName = data.company_name || data.company_name_profile || '';
+    if (companyName) {
+        html += `<h1 class="preview-company-name">${escapeHtml(companyName)}</h1>`;
+    }
+    html += '</div>';
+    
+    // Profile Section
+    html += '<div class="preview-profile-section">';
+    if (data.profile_photo) {
+        html += `<div class="preview-photo"><img src="${escapeHtml(data.profile_photo)}" alt="プロフィール写真"></div>`;
+    }
+    
+    html += '<div class="preview-person-info">';
+    if (data.name) {
+        html += `<h2 class="preview-person-name">${escapeHtml(data.name)}</h2>`;
+    }
+    if (data.position) {
+        html += `<p class="preview-position">${escapeHtml(data.position)}</p>`;
+    }
+    if (data.branch_department) {
+        html += `<p class="preview-department">${escapeHtml(data.branch_department)}</p>`;
+    }
+    if (data.qualifications) {
+        html += `<p class="preview-qualifications">${escapeHtml(data.qualifications)}</p>`;
+    }
+    html += '</div>';
+    html += '</div>';
+    
+    // Company Information
+    const companyInfoItems = [];
+    if (data.company_postal_code || data.company_address) {
+        let addressText = '';
+        if (data.company_postal_code) addressText += `〒${escapeHtml(data.company_postal_code)} `;
+        if (data.company_address) addressText += escapeHtml(data.company_address);
+        companyInfoItems.push({label: '住所', value: addressText});
+    }
+    if (data.company_phone) {
+        companyInfoItems.push({label: '連絡先', value: escapeHtml(data.company_phone)});
+    }
+    if (data.mobile_phone) {
+        companyInfoItems.push({label: '携帯番号', value: escapeHtml(data.mobile_phone)});
+    }
+    if (data.company_website) {
+        companyInfoItems.push({label: 'HP', value: `<a href="${escapeHtml(data.company_website)}" target="_blank">${escapeHtml(data.company_website)}</a>`});
+    }
+    if (data.real_estate_license_registration_number) {
+        let licenseText = '';
+        if (data.real_estate_license_prefecture) licenseText += escapeHtml(data.real_estate_license_prefecture);
+        if (data.real_estate_license_renewal_number) licenseText += `(${escapeHtml(data.real_estate_license_renewal_number)})`;
+        licenseText += `第${escapeHtml(data.real_estate_license_registration_number)}号`;
+        companyInfoItems.push({label: '宅建業者番号', value: licenseText});
+    }
+    
+    if (companyInfoItems.length > 0) {
+        html += '<div class="preview-company-info">';
+        companyInfoItems.forEach(item => {
+            html += `<div class="preview-info-item"><strong>${item.label}</strong><span>${item.value}</span></div>`;
+        });
+        html += '</div>';
+    }
+    
+    // Personal Information
+    const personalInfoItems = [];
+    if (data.birth_date) {
+        personalInfoItems.push({label: '誕生日', value: escapeHtml(data.birth_date)});
+    }
+    if (data.current_residence || data.hometown) {
+        let residenceText = '';
+        if (data.current_residence) residenceText += escapeHtml(data.current_residence);
+        if (data.current_residence && data.hometown) residenceText += ' / ';
+        if (data.hometown) residenceText += escapeHtml(data.hometown);
+        personalInfoItems.push({label: '現在の居住地/出身地', value: residenceText});
+    }
+    if (data.alma_mater) {
+        personalInfoItems.push({label: '出身校', value: escapeHtml(data.alma_mater)});
+    }
+    if (data.hobbies) {
+        personalInfoItems.push({label: '趣味', value: escapeHtml(data.hobbies)});
+    }
+    
+    if (personalInfoItems.length > 0) {
+        html += '<div class="preview-personal-info">';
+        personalInfoItems.forEach(item => {
+            html += `<div class="preview-info-item"><strong>${item.label}</strong><span>${item.value}</span></div>`;
+        });
+        html += '</div>';
+    }
+    
+    // Greetings
+    if (data.greetings && data.greetings.length > 0) {
+        html += '<div class="preview-greetings">';
+        data.greetings.forEach(greeting => {
+            if (greeting.title || greeting.content) {
+                html += '<div class="preview-greeting-item">';
+                if (greeting.title) {
+                    html += `<h3>${escapeHtml(greeting.title)}</h3>`;
+                }
+                if (greeting.content) {
+                    html += `<p>${escapeHtml(greeting.content).replace(/\n/g, '<br>')}</p>`;
+                }
+                html += '</div>';
+            }
+        });
+        html += '</div>';
+    }
+    
+    // Tech Tools
+    if (data.tech_tools && data.tech_tools.length > 0) {
+        html += '<div class="preview-tech-tools">';
+        html += '<h2>おすすめサービス</h2>';
+        html += '<div class="preview-tech-tools-grid">';
+        data.tech_tools.forEach(tool => {
+            const toolName = techToolNames[tool] || tool;
+            const toolIcon = techToolIcons[tool] || '📋';
+            html += `<div class="preview-tech-tool-item">`;
+            html += `<div class="preview-tool-icon">${toolIcon}</div>`;
+            html += `<h4>${escapeHtml(toolName)}</h4>`;
+            html += `<button class="preview-tool-btn">詳細はこちら</button>`;
+            html += `</div>`;
+        });
+        html += '</div>';
+        html += '</div>';
+    }
+    
+    // Communication / SNS
+    if (data.communication && Object.keys(data.communication).length > 0) {
+        html += '<div class="preview-communication">';
+        html += '<hr>';
+        html += '<h3>SNS</h3>';
+        html += '<div class="preview-comm-grid">';
+        
+        Object.values(data.communication).forEach(comm => {
+            if (comm.url || comm.id) {
+                html += '<div class="preview-comm-item">';
+                html += `<div class="preview-comm-icon">${comm.icon}</div>`;
+                html += `<div class="preview-comm-name">${escapeHtml(comm.name)}</div>`;
+                html += `<button class="preview-comm-btn">詳細はこちら</button>`;
+                html += '</div>';
+            }
+        });
+        
+        html += '</div>';
+        html += '</div>';
+    }
+    
+    // Free Input
+    if (data.free_input_text) {
+        html += '<div class="preview-free-input">';
+        html += `<p>${escapeHtml(data.free_input_text).replace(/\n/g, '<br>')}</p>`;
+        html += '</div>';
+    }
+    
+    if (data.free_image) {
+        html += '<div class="preview-free-image">';
+        const imageLink = data.free_image_link ? `href="${escapeHtml(data.free_image_link)}" target="_blank"` : '';
+        html += `<a ${imageLink}><img src="${escapeHtml(data.free_image)}" alt="フリー画像"></a>`;
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Show preview
+function showPreview() {
+    const data = collectFormData();
+    storedFormData = data;
+    
+    const previewContent = document.getElementById('preview-content');
+    const previewContainer = document.getElementById('preview-container');
+    const registerSteps = document.querySelector('.register-steps').parentElement;
+    
+    previewContent.innerHTML = generatePreview(data);
+    previewContainer.style.display = 'block';
+    
+    // Hide all register steps
+    document.querySelectorAll('.register-step').forEach(step => {
+        step.style.display = 'none';
+    });
+    
+    isPreviewMode = true;
+}
+
+// Hide preview
+function hidePreview() {
+    const previewContainer = document.getElementById('preview-container');
+    previewContainer.style.display = 'none';
+    
+    // Show active register step
+    document.querySelectorAll('.register-step').forEach(step => {
+        if (step.classList.contains('active')) {
+            step.style.display = 'block';
+        }
+    });
+    
+    isPreviewMode = false;
+}
+
+
 // Photo upload previews
 document.getElementById('profile_photo_header')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -633,4 +1078,16 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Initialize greeting buttons
     updateGreetingButtons();
+    
+    // Initialize preview button
+    const previewBtn = document.getElementById('preview-btn');
+    const closePreviewBtn = document.getElementById('close-preview-btn');
+    
+    if (previewBtn) {
+        previewBtn.addEventListener('click', showPreview);
+    }
+    
+    if (closePreviewBtn) {
+        closePreviewBtn.addEventListener('click', hidePreview);
+    }
 });
