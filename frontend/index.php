@@ -15,25 +15,7 @@ require_once __DIR__ . '/../backend/config/config.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <img src="assets/images/logo.png" alt="不動産AI名刺">
-                    <!-- <span>不動産AI名刺</span> -->
-                </div>
-                <nav class="nav">
-                    <a href="#features">機能</a>
-                    <a href="#pricing">動画</a>
-                    <a href="#howto">使い方</a>
-                    <a href="#tools">ツール</a>
-                    <a href="login.php" class="btn-secondary">ログイン</a>
-                    <a href="register.php?type=new" class="btn-primary">今すぐ始める</a>
-                </nav>
-            </div>
-        </div>
-    </header>
+    <?php include __DIR__ . '/includes/header.php'; ?>
 
     <!-- Hero Section -->
     <section class="hero">

@@ -28,7 +28,7 @@
 
 /* Step Indicator */
 .register-steps {
-    margin-bottom: 1rem;
+    margin-bottom: 3rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -37,12 +37,11 @@
 }
 
 .step-indicator {
-    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
 .step-indicator::before {
@@ -615,12 +614,6 @@ input.form-control {
     margin-bottom: 0.5rem;
 }
 
-.comm-icon img {
-    width: 80%;
-    height:80%;
-    object-fit: contain;
-}
-
 .communication-checkbox span {
     font-size: 0.9rem;
     font-weight: 500;
@@ -652,8 +645,7 @@ input.form-control {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    margin-right: 2rem;
-    margin-bottom: 2rem;
+    margin-left: 1rem;
     transition: background 0.3s;
 }
 
@@ -949,12 +941,6 @@ input.form-control {
 .preview-comm-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-}
-
-.preview-comm-icon img {
-    width: 80%;
-    height:80%;
-    object-fit: contain;
 }
 
 .preview-comm-name {

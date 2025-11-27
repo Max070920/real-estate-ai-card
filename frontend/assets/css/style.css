@@ -62,6 +62,96 @@ body {
     color: #0066cc;
 }
 
+/* User Menu */
+.user-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #333;
+    border-radius: 50%;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.user-icon:hover {
+    background: #f0f7ff;
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.user-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.user-menu:hover .user-dropdown,
+.user-menu.active .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.dropdown-item:first-child {
+    border-top: none;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #f0f7ff;
+    color: #0066cc;
+}
+
+.dropdown-item span {
+    display: block;
+    letter-spacing: 0.5px;
+}
+
+/* Ensure user menu appears in same position as btn-secondary */
+.user-menu {
+    margin: 0;
+    vertical-align: middle;
+}
+
 /* Buttons */
 .btn-primary {
     background: #0066cc;
@@ -685,8 +775,22 @@ body {
 /* Responsive */
 @media (max-width: 768px) {
     .nav {
-        flex-direction: column;
-        gap: 0.5rem;
+        flex-direction: row;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .nav > a:not(.btn-primary):not(.btn-secondary) {
+        display: none; /* Hide nav links on mobile, keep buttons */
+    }
+    
+    .user-menu {
+        order: -1; /* Show user menu before buttons */
+    }
+    
+    .user-dropdown {
+        right: 0;
+        left: auto;
     }
     
     .hero-content h1 {

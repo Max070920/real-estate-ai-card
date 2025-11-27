@@ -25,10 +25,15 @@ $userId = $_SESSION['user_id'];
     <link rel="stylesheet" href="assets/css/edit.css">
 </head>
 <body>
+    <?php 
+    $showNavLinks = false; // Hide nav links on edit page
+    include __DIR__ . '/includes/header.php'; 
+    ?>
+    
     <div class="edit-container">
         <header class="edit-header">
             <h1>デジタル名刺編集</h1>
-            <a href="dashboard.php" class="btn-back">ダッシュボードに戻る</a>
+            <a href="index.php" class="btn-back">ホームに戻る</a>
         </header>
 
         <div class="edit-content">
