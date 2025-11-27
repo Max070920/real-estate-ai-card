@@ -221,8 +221,10 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
                 body: uploadData,
                 credentials: 'include'
             });
-            
+
+            console.log(uploadResponse);
             const uploadResult = await uploadResponse.json();
+            console.log(uploadResult);
             if (uploadResult.success) {
                 data.profile_photo = uploadResult.data.file_path;
             }

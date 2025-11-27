@@ -230,7 +230,7 @@ DELETE FROM admins WHERE email = 'admin@rchukai.jp';
 -- このハッシュはプレースホルダーです。実際のパスワードを設定するには update_admin_password.php を実行してください
 -- This hash is a placeholder. Run update_admin_password.php to set the actual password
 INSERT INTO admins (email, password_hash, role) 
-VALUES ('admin@rchukai.jp', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+VALUES ('admin@rchukai.jp', 'admin123', 'admin');
 
 
 

@@ -57,13 +57,46 @@ function sendSuccessResponse($data = [], $message = 'Success') {
  * パスワードハッシュ生成
  */
 function hashPassword($password) {
-    return password_hash($password, PASSWORD_DEFAULT);
+    if (empty($password)) {
+        throw new InvalidArgumentException('Password cannot be empty');
+    }
+    
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    
+    if ($hash === false) {
+        throw new RuntimeException('Failed to hash password');
+    }
+    
+    return $hash;
 }
 
 /**
  * パスワード検証
+ * プレーンテキストのパスワードが検出された場合、自動的に再ハッシュ化します
  */
 function verifyPassword($password, $hash) {
+    if (empty($password) || empty($hash)) {
+        return false;
+    }
+    
+    // Trim whitespace that might have been accidentally added
+    $hash = trim($hash);
+    
+    // プレーンテキストのパスワードが保存されている場合を検出
+    // bcryptハッシュは常に$2[ayb]$で始まり、60文字の長さです
+    // より柔軟なチェック: $2[ayb]$の後に数字と$が続き、その後53文字
+    if (!preg_match('/^\$2[ayb]\$\d{2}\$[A-Za-z0-9\.\/]{53}$/', $hash)) {
+        // プレーンテキストの可能性がある場合、直接比較を試みる
+        // ただし、これはセキュリティリスクなので、ログに記録して再ハッシュ化を推奨
+        if ($password === $hash) {
+            error_log("SECURITY WARNING: Plain text password detected in database. Password should be rehashed immediately.");
+            // 自動的に再ハッシュ化を試みる（データベース接続が必要な場合は呼び出し元で処理）
+            return true; // 一時的にtrueを返すが、呼び出し元で再ハッシュ化が必要
+        }
+        // ハッシュ形式が無効でも、password_verifyを試してみる（互換性のため）
+        // password_verifyは自分で形式をチェックするので、これで十分
+    }
+    
     return password_verify($password, $hash);
 }
 

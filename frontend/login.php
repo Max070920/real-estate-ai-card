@@ -9,7 +9,7 @@ startSessionIfNotStarted();
 
 // 既にログイン済みの場合はダッシュボードへ
 if (!empty($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: index.php');
     exit();
 }
 ?>

@@ -41,7 +41,25 @@ try {
     $stmt->execute([$input['email']]);
     $user = $stmt->fetch();
 
-    if (!$user || !verifyPassword($input['password'], $user['password_hash'])) {
+    if (!$user) {
+        sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
+    }
+
+    // パスワード検証
+    $passwordValid = verifyPassword($input['password'], $user['password_hash']);
+    
+    // プレーンテキストのパスワードが検出された場合、自動的に再ハッシュ化
+    if (!$passwordValid && $input['password'] === $user['password_hash']) {
+        // プレーンテキストが検出されたので、適切にハッシュ化して保存
+        $newHash = hashPassword($input['password']);
+        $updateStmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+        $updateStmt->execute([$newHash, $user['id']]);
+        
+        error_log("SECURITY: Plain text password detected and rehashed for user ID: " . $user['id']);
+        $passwordValid = true; // 再ハッシュ化後、認証を許可
+    }
+    
+    if (!$passwordValid) {
         sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
     }
 

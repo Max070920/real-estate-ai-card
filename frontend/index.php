@@ -27,6 +27,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <a href="#features">機能</a>
                     <a href="#pricing">動画</a>
                     <a href="#howto">使い方</a>
+                    <a href="#tools">ツール</a>
                     <a href="login.php" class="btn-secondary">ログイン</a>
                     <a href="register.php?type=new" class="btn-primary">今すぐ始める</a>
                 </nav>
@@ -50,7 +51,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                         </div>
                     </div>
                     <div class="hero-content-inner-right">
-                        <img src="assets/images/card.png" alt="デジタル名刺サンプル 1">
+                        <img src="assets/images/card.png" alt="AI名刺サンプル 1">
                     </div>
                 </div>
                 <div class="hero-preview">
@@ -345,7 +346,9 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h4>サービス</h4>
                     <ul>
                         <li><a href="#features">機能</a></li>
+                        <li><a href="#pricing">動画</a></li>
                         <li><a href="#howto">使い方</a></li>
+                        <li><a href="#tools">ツール</a></li>
                         <!-- <li><a href="#pricing">料金</a></li> -->
                     </ul>
                 </div>
