@@ -615,6 +615,12 @@ input.form-control {
     margin-bottom: 0.5rem;
 }
 
+.comm-icon img {
+    width: 80%;
+    height:80%;
+    object-fit: contain;
+}
+
 .communication-checkbox span {
     font-size: 0.9rem;
     font-weight: 500;
@@ -943,6 +949,12 @@ input.form-control {
 .preview-comm-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
+}
+
+.preview-comm-icon img {
+    width: 80%;
+    height:80%;
+    object-fit: contain;
 }
 
 .preview-comm-name {

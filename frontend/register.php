@@ -482,7 +482,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_line" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/line.png" alt="LINE">
+                                    </div>
                                     <span>LINE</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -493,7 +495,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_messenger" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/messenger.png" alt="Messenger">
+                                    </div>
                                     <span>Messenger</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -504,7 +508,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_whatsapp" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/whatsapp.png" alt="WhatsApp">
+                                    </div>
                                     <span>WhatsApp</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -515,7 +521,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_plus_message" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/message.png" alt="+メッセージ">
+                                    </div>
                                     <span>+メッセージ</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -526,7 +534,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_chatwork" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/chatwork.png" alt="Chatwork">
+                                    </div>
                                     <span>Chatwork</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -537,7 +547,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_andpad" value="1">
-                                    <div class="comm-icon">💬</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/andpad.png" alt="Andpad">
+                                    </div>
                                     <span>Andpad</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -555,7 +567,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_instagram" value="1">
-                                    <div class="comm-icon">📷</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/instagram.png" alt="Instagram">
+                                    </div>
                                     <span>Instagram</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -566,7 +580,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_facebook" value="1">
-                                    <div class="comm-icon">📘</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/facebook.png" alt="Facebook">
+                                    </div>
                                     <span>Facebook</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -577,7 +593,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_twitter" value="1">
-                                    <div class="comm-icon">🐦</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/twitter.png" alt="X (Twitter)">
+                                    </div>
                                     <span>X (Twitter)</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -588,7 +606,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_youtube" value="1">
-                                    <div class="comm-icon">📺</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/youtube.png" alt="YouTube">
+                                    </div>
                                     <span>YouTube</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -599,7 +619,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_tiktok" value="1">
-                                    <div class="comm-icon">🎵</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/tiktok.png" alt="TikTok">
+                                    </div>
                                     <span>TikTok</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -610,7 +632,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_note" value="1">
-                                    <div class="comm-icon">📝</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/note.png" alt="note">
+                                    </div>
                                     <span>note</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -621,7 +645,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_pinterest" value="1">
-                                    <div class="comm-icon">📌</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/pinterest.png" alt="Pinterest">
+                                    </div>
                                     <span>Pinterest</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">
@@ -632,7 +658,9 @@ $prefectures = [
                             <div class="communication-item">
                                 <label class="communication-checkbox">
                                     <input type="checkbox" name="comm_threads" value="1">
-                                    <div class="comm-icon">🧵</div>
+                                    <div class="comm-icon">
+                                        <img src="assets/images/icons/threads.png" alt="Threads">
+                                    </div>
                                     <span>Threads</span>
                                 </label>
                                 <div class="comm-details" style="display: none;">

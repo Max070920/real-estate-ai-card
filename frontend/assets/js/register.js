@@ -706,28 +706,42 @@ function collectFormData() {
             data.communication.line = {
                 name: 'LINE',
                 id: formData.get('comm_line_id') || '',
-                icon: '💬'
+                icon: '<img src="assets/images/icons/line.png" alt="LINE">'
+            };
+        }
+        if (formData.get('comm_plus_message')) {
+            data.communication.plus_message = {
+                name: '+メッセージ',
+                id: formData.get('comm_plus_message_id') || '',
+                icon: '<img src="assets/images/icons/message.png" alt="+メッセージ">'
+            };
+        }
+        if (formData.get('comm_andpad')) {
+            data.communication.andpad = {
+                name: 'Andpad',
+                id: formData.get('comm_andpad_id') || '',
+                icon: '<img src="assets/images/icons/andpad.png" alt="Andpad">'
             };
         }
         if (formData.get('comm_messenger')) {
             data.communication.messenger = {
                 name: 'Messenger',
                 id: formData.get('comm_messenger_id') || '',
-                icon: '💬'
+                icon: '<img src="assets/images/icons/messenger.png" alt="Messenger">'
             };
         }
         if (formData.get('comm_whatsapp')) {
             data.communication.whatsapp = {
                 name: 'WhatsApp',
                 id: formData.get('comm_whatsapp_id') || '',
-                icon: '💬'
+                icon: '<img src="assets/images/icons/whatsapp.png" alt="WhatsApp">'
             };
         }
         if (formData.get('comm_chatwork')) {
             data.communication.chatwork = {
                 name: 'Chatwork',
                 id: formData.get('comm_chatwork_id') || '',
-                icon: '💬'
+                icon: '<img src="assets/images/icons/chatwork.png" alt="Chatwork">'
             };
         }
         
@@ -736,56 +750,56 @@ function collectFormData() {
             data.communication.instagram = {
                 name: 'Instagram',
                 url: formData.get('comm_instagram_url') || '',
-                icon: '📷'
+                icon: '<img src="assets/images/icons/instagram.png" alt="Instagram">'
             };
         }
         if (formData.get('comm_facebook')) {
             data.communication.facebook = {
                 name: 'Facebook',
                 url: formData.get('comm_facebook_url') || '',
-                icon: '📘'
+                icon: '<img src="assets/images/icons/facebook.png" alt="Facebook">'
             };
         }
         if (formData.get('comm_twitter')) {
             data.communication.twitter = {
                 name: 'X (Twitter)',
                 url: formData.get('comm_twitter_url') || '',
-                icon: '🐦'
+                icon: '<img src="assets/images/icons/twitter.png" alt="X (Twitter)">'
             };
         }
         if (formData.get('comm_youtube')) {
             data.communication.youtube = {
                 name: 'YouTube',
                 url: formData.get('comm_youtube_url') || '',
-                icon: '📺'
+                icon: '<img src="assets/images/icons/youtube.png" alt="YouTube">'
             };
         }
         if (formData.get('comm_tiktok')) {
             data.communication.tiktok = {
                 name: 'TikTok',
                 url: formData.get('comm_tiktok_url') || '',
-                icon: '🎵'
+                icon: '<img src="assets/images/icons/tiktok.png" alt="TikTok">'
             };
         }
         if (formData.get('comm_note')) {
             data.communication.note = {
                 name: 'note',
                 url: formData.get('comm_note_url') || '',
-                icon: '📝'
+                icon: '<img src="assets/images/icons/note.png" alt="note">'
             };
         }
         if (formData.get('comm_pinterest')) {
             data.communication.pinterest = {
                 name: 'Pinterest',
                 url: formData.get('comm_pinterest_url') || '',
-                icon: '📌'
+                icon: '<img src="assets/images/icons/pinterest.png" alt="Pinterest">'
             };
         }
         if (formData.get('comm_threads')) {
             data.communication.threads = {
                 name: 'Threads',
                 url: formData.get('comm_threads_url') || '',
-                icon: '🧵'
+                icon: '<img src="assets/images/icons/threads.png" alt="Threads">'
             };
         }
     }
@@ -948,7 +962,7 @@ function generatePreview(data) {
     if (data.communication && Object.keys(data.communication).length > 0) {
         html += '<div class="preview-communication">';
         html += '<hr>';
-        html += '<h3>SNS</h3>';
+        html += '<h3>コミュニケーション + SNS</h3>';
         html += '<div class="preview-comm-grid">';
         
         Object.values(data.communication).forEach(comm => {
