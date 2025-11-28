@@ -1,8 +1,15 @@
 <?php
 /**
  * Registration Page (Multi-step Form)
+ * Note: Step 1 (Account Registration) is now in new_register.php
  */
 require_once __DIR__ . '/../backend/config/config.php';
+require_once __DIR__ . '/../backend/includes/functions.php';
+
+startSessionIfNotStarted();
+
+// 認証チェック - 未登録の場合はモーダルを表示
+$isLoggedIn = !empty($_SESSION['user_id']);
 
 $userType = $_GET['type'] ?? 'new'; // new, existing, free
 
@@ -58,36 +65,32 @@ $prefectures = [
             </a>
         </div>
 
-        <div class="register-content">
+        <div class="register-content" <?php if (!$isLoggedIn): ?>style="display: none;"<?php endif; ?>>
             <div class="register-steps">
                 <div class="step-indicator">
                     <div class="step active" data-step="1">
                         <div class="step-circle">1</div>
-                        <div class="step-label">アカウント作成</div>
+                        <div class="step-label">ヘッダー・挨拶</div>
                     </div>
                     <div class="step" data-step="2">
                         <div class="step-circle">2</div>
-                        <div class="step-label">ヘッダー・挨拶</div>
+                        <div class="step-label">会社プロフィール</div>
                     </div>
                     <div class="step" data-step="3">
                         <div class="step-circle">3</div>
-                        <div class="step-label">会社プロフィール</div>
+                        <div class="step-label">個人情報</div>
                     </div>
                     <div class="step" data-step="4">
                         <div class="step-circle">4</div>
-                        <div class="step-label">個人情報</div>
+                        <div class="step-label">テックツール</div>
                     </div>
                     <div class="step" data-step="5">
                         <div class="step-circle">5</div>
-                        <div class="step-label">テックツール</div>
+                        <div class="step-label">コミュニケーション</div>
                     </div>
                     <div class="step" data-step="6">
                         <div class="step-circle">6</div>
-                        <div class="step-label">コミュニケーション</div>
-                    </div>
-                    <div class="step" data-step="7">
-                        <div class="step-circle">7</div>
-                        <div class="step-label">確認・決済</div>
+                        <div class="step-label">決済</div>
                     </div>
                 </div>
                 <button type="button" id="preview-btn" class="btn-preview">プレビュー</button>
@@ -101,59 +104,8 @@ $prefectures = [
                 <div id="preview-content" class="preview-content"></div>
             </div>
 
-            <!-- Step 1: Account Registration -->
+            <!-- Step 1: Header & Greeting -->
             <div id="step-1" class="register-step active">
-                <h1>アカウント作成</h1>
-                <p class="step-description">必要な情報を入力して、あなた専用のデジタル名刺を作成しましょう</p>
-
-                <form id="register-form" class="register-form">
-                    <input type="hidden" name="user_type" value="<?php echo htmlspecialchars($userType); ?>">
-
-                    <?php if ($userType === 'existing'): ?>
-                    <div class="form-group">
-                        <label>既存URL（既存利用者のみ）</label>
-                        <input type="text" name="existing_url" class="form-control" placeholder="既存のサービスURLを入力">
-                    </div>
-                    <?php endif; ?>
-
-                    <div class="form-group">
-                        <label>メールアドレス <span class="required">*</span></label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>パスワード <span class="required">*</span></label>
-                        <input type="password" name="password" class="form-control" minlength="8" required>
-                        <small>8文字以上で入力してください</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>携帯電話番号 <span class="required">*</span></label>
-                        <input type="tel" name="phone_number" class="form-control" required>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" name="agree_terms" required>
-                            <a href="terms.php" target="_blank">利用規約</a>に同意する
-                        </label>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" name="agree_privacy" required>
-                            <a href="privacy.php" target="_blank">プライバシーポリシー</a>に同意する
-                        </label>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary btn-large">次へ</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Step 2: Header & Greeting -->
-            <div id="step-2" class="register-step">
                 <h1>ヘッダー・挨拶部</h1>
                 <p class="step-description">会社情報とご挨拶文を入力してください</p>
 
@@ -214,14 +166,13 @@ $prefectures = [
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="goToStep(1)">戻る</button>
                         <button type="submit" class="btn-primary">次へ</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Step 3: Company Profile -->
-            <div id="step-3" class="register-step">
+            <!-- Step 2: Company Profile -->
+            <div id="step-2" class="register-step">
                 <h1>会社プロフィール部</h1>
                 <p class="step-description">会社情報を入力してください</p>
 
@@ -282,14 +233,14 @@ $prefectures = [
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="goToStep(2)">戻る</button>
+                        <button type="button" class="btn-secondary" onclick="goToStep(1)">戻る</button>
                         <button type="submit" class="btn-primary">次へ</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Step 4: Personal Information -->
-            <div id="step-4" class="register-step">
+            <!-- Step 3: Personal Information -->
+            <div id="step-3" class="register-step">
                 <h1>個人情報</h1>
                 <p class="step-description">あなたの個人情報を入力してください</p>
 
@@ -393,14 +344,14 @@ $prefectures = [
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="goToStep(3)">戻る</button>
+                        <button type="button" class="btn-secondary" onclick="goToStep(2)">戻る</button>
                         <button type="submit" class="btn-primary">次へ</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Step 5: Tech Tools -->
-            <div id="step-5" class="register-step">
+            <!-- Step 4: Tech Tools -->
+            <div id="step-4" class="register-step">
                 <h1>テックツール選択</h1>
                 <p class="step-description">表示させるテックツールを選択してください（最低2つ以上）</p>
 
@@ -462,14 +413,14 @@ $prefectures = [
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="goToStep(4)">戻る</button>
+                        <button type="button" class="btn-secondary" onclick="goToStep(3)">戻る</button>
                         <button type="submit" class="btn-primary">次へ</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Step 6: Communication Functions -->
-            <div id="step-6" class="register-step">
+            <!-- Step 5: Communication Functions -->
+            <div id="step-5" class="register-step">
                 <h1>コミュニケーション機能部</h1>
                 <p class="step-description">メッセージアプリやSNSの連携を設定してください</p>
 
@@ -671,20 +622,20 @@ $prefectures = [
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="goToStep(5)">戻る</button>
+                        <button type="button" class="btn-secondary" onclick="goToStep(4)">戻る</button>
                         <button type="submit" class="btn-primary">次へ</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Step 7: Preview & Payment -->
-            <div id="step-7" class="register-step">
-                <h1>確認・決済</h1>
-                <p class="step-description">入力内容を確認してください</p>
+            <!-- Step 6: Preview & Payment -->
+            <div id="step-6" class="register-step">
+                <h1>決済</h1>
+                <!-- <p class="step-description">入力内容を確認してください</p> -->
 
-                <div id="preview-area" class="preview-area">
+                <!-- <div id="preview-area" class="preview-area"> -->
                     <!-- Preview will be loaded here -->
-                </div>
+                <!-- </div> -->
 
                 <div class="payment-section">
                     <h3>お支払方法</h3>
@@ -714,13 +665,71 @@ $prefectures = [
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="goToStep(6)">戻る</button>
+                    <button type="button" class="btn-secondary" onclick="goToStep(5)">戻る</button>
                     <button type="button" id="submit-payment" class="btn-primary">この内容で進める</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Registration Required Modal -->
+    <?php if (!$isLoggedIn): ?>
+    <div id="registration-modal" class="registration-modal" style="display: block;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>まずはご登録ください。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modal-confirm-btn" class="btn-primary">確認する</button>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <script src="assets/js/register.js"></script>
+    <script>
+        // Modal functionality
+        document.getElementById('modal-confirm-btn')?.addEventListener('click', function() {
+            window.location.href = 'login.php';
+        });
+    </script>
+    <style>
+        .registration-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .registration-modal .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 0;
+            border: none;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .registration-modal .modal-body {
+            padding: 2.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #333;
+            line-height: 1.6;
+        }
+        .registration-modal .modal-footer {
+            padding: 0 2.5rem 2.5rem;
+            text-align: center;
+        }
+        .registration-modal .modal-footer .btn-primary {
+            min-width: 150px;
+            padding: 0.75rem 2rem;
+        }
+    </style>
 </body>
 </html>

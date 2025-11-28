@@ -80,7 +80,7 @@ if (!empty($_SESSION['user_id'])) {
                 <button type="submit" class="btn-primary btn-block">ログイン</button>
             </form>
             <div class="login-link">
-                <a href="register.php">アカウントをお持ちでない方はこちら</a>
+                <a href="new_register.php">アカウントをお持ちでない方はこちら</a>
             </div>
             <div id="error-message" style="color: red; margin-top: 1rem; display: none;"></div>
         </div>

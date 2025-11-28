@@ -7,7 +7,7 @@ let formData = {};
 
 // Step navigation
 function goToStep(step) {
-    if (step < 1 || step > 7) return;
+    if (step < 1 || step > 6) return;
     
     // Hide all steps
     document.querySelectorAll('.register-step').forEach(el => {
@@ -31,6 +31,11 @@ function goToStep(step) {
     });
     
     currentStep = step;
+    
+    // Generate and display QR code when reaching step 6 (payment step)
+    if (step === 6) {
+        generateAndDisplayQRCode();
+    }
 }
 
 // Move greeting up/down
@@ -151,38 +156,7 @@ document.querySelectorAll('.communication-checkbox input[type="checkbox"]').forE
     });
 });
 
-// Step 1: Account Registration
-document.getElementById('register-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formDataObj = new FormData(e.target);
-    const data = Object.fromEntries(formDataObj);
-    
-    try {
-        const response = await fetch('../backend/api/auth/register.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            formData = { ...formData, ...data, user_id: result.data.user_id };
-            sessionStorage.setItem('registerData', JSON.stringify(formData));
-            goToStep(2);
-        } else {
-            alert(result.message || '登録に失敗しました');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('エラーが発生しました');
-    }
-});
-
-// Step 2: Header & Greeting
+// Step 1: Header & Greeting (Note: Account registration is now in new_register.php)
 document.getElementById('header-greeting-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -270,7 +244,7 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
         
         const result = await response.json();
         if (result.success) {
-            goToStep(3);
+            goToStep(2);
         } else {
             alert('更新に失敗しました: ' + result.message);
         }
@@ -280,7 +254,7 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
     }
 });
 
-// Step 3: Company Profile
+// Step 2: Company Profile
 document.getElementById('company-profile-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -309,7 +283,7 @@ document.getElementById('company-profile-form')?.addEventListener('submit', asyn
         
         const result = await response.json();
         if (result.success) {
-            goToStep(4);
+            goToStep(3);
         } else {
             alert('更新に失敗しました: ' + result.message);
         }
@@ -319,7 +293,7 @@ document.getElementById('company-profile-form')?.addEventListener('submit', asyn
     }
 });
 
-// Step 4: Personal Information
+// Step 3: Personal Information
 document.getElementById('personal-info-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -396,7 +370,7 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
         
         const result = await response.json();
         if (result.success) {
-            goToStep(5);
+            goToStep(4);
         } else {
             alert('更新に失敗しました: ' + result.message);
         }
@@ -406,7 +380,7 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
     }
 });
 
-// Step 5: Tech Tools Selection
+// Step 4: Tech Tools Selection
 document.getElementById('tech-tools-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     
@@ -424,7 +398,7 @@ document.getElementById('tech-tools-form')?.addEventListener('submit', (e) => {
     // Generate tech tool URLs
     generateTechToolUrls(selectedTools);
     
-    goToStep(6);
+    goToStep(5);
 });
 
 // Generate Tech Tool URLs
@@ -525,8 +499,7 @@ document.getElementById('communication-form')?.addEventListener('submit', async 
         
         const result = await response.json();
         if (result.success) {
-            goToStep(7);
-            loadPreview();
+            goToStep(6);
         } else {
             alert('更新に失敗しました: ' + result.message);
         }
@@ -536,7 +509,7 @@ document.getElementById('communication-form')?.addEventListener('submit', async 
     }
 });
 
-// Step 7: Preview & Payment
+// Step 6: Preview & Payment
 document.getElementById('submit-payment')?.addEventListener('click', async () => {
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
     
