@@ -131,7 +131,7 @@ $users = $stmt->fetchAll();
                         <option value="0" <?php echo ($_GET['is_open'] ?? '') === '0' ? 'selected' : ''; ?>>非公開</option>
                     </select>
                     <button type="submit" class="btn-filter">検索</button>
-                    <a href="export-csv.php" class="btn-export">CSV出力</a>
+                    <a href="../../backend/api/admin/export-csv.php" class="btn-export">CSV出力</a>
                 </form>
             </div>
 
