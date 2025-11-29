@@ -117,25 +117,25 @@ $prefectures = [
 
                     <div class="form-section">
                         <h3>ロゴマーク</h3>
-                        <div class="upload-area" id="logo-upload">
+                        <div class="upload-area" id="logo-upload" data-upload-id="company_logo">
                             <input type="file" id="company_logo" name="company_logo" accept="image/*" style="display: none;">
                             <div class="upload-preview"></div>
                             <button type="button" class="btn-outline" onclick="document.getElementById('company_logo').click()">
                                 ロゴをアップロード
                             </button>
-                            <small>自動でリサイズされます</small>
+                            <small>ファイルを選択するか、ここにドラッグ&ドロップしてください（自動でリサイズされます）</small>
                         </div>
                     </div>
 
                     <div class="form-section">
                         <h3>顔写真</h3>
-                        <div class="upload-area" id="photo-upload-header">
+                        <div class="upload-area" id="photo-upload-header" data-upload-id="profile_photo_header">
                             <input type="file" id="profile_photo_header" name="profile_photo" accept="image/*" style="display: none;">
                             <div class="upload-preview"></div>
                             <button type="button" class="btn-outline" onclick="document.getElementById('profile_photo_header').click()">
                                 写真をアップロード
                             </button>
-                            <small>自動でリサイズされます</small>
+                            <small>ファイルを選択するか、ここにドラッグ&ドロップしてください（自動でリサイズされます）</small>
                         </div>
                     </div>
 
@@ -341,12 +341,13 @@ $prefectures = [
                         </div>
                         <div class="form-group">
                             <label>画像・バナー（リンク付き画像）</label>
-                            <div class="upload-area" id="free-image-upload">
+                            <div class="upload-area" id="free-image-upload" data-upload-id="free_image">
                                 <input type="file" id="free_image" name="free_image" accept="image/*" style="display: none;">
                                 <div class="upload-preview"></div>
                                 <button type="button" class="btn-outline" onclick="document.getElementById('free_image').click()">
                                     画像をアップロード
                                 </button>
+                                <small>ファイルを選択するか、ここにドラッグ&ドロップしてください</small>
                             </div>
                             <div class="form-group" style="margin-top: 0.5rem;">
                                 <label>画像のリンク先URL（任意）</label>
@@ -703,6 +704,58 @@ $prefectures = [
         // Modal functionality
         document.getElementById('modal-confirm-btn')?.addEventListener('click', function() {
             window.location.href = 'login.php';
+        });
+        
+        // ドラッグ&ドロップ機能の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべてのアップロードエリアにドラッグ&ドロップ機能を追加
+            document.querySelectorAll('.upload-area').forEach(uploadArea => {
+                const fileInput = uploadArea.querySelector('input[type="file"]');
+                if (!fileInput) return;
+                
+                // ドラッグオーバー時の処理
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    uploadArea.classList.add('drag-over');
+                });
+                
+                // ドラッグリーブ時の処理
+                uploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    uploadArea.classList.remove('drag-over');
+                });
+                
+                // ドロップ時の処理
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    uploadArea.classList.remove('drag-over');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const file = files[0];
+                        // 画像ファイルかチェック
+                        if (file.type.startsWith('image/')) {
+                            fileInput.files = files;
+                            // ファイル選択イベントをトリガー
+                            const event = new Event('change', { bubbles: true });
+                            fileInput.dispatchEvent(event);
+                        } else {
+                            alert('画像ファイルを選択してください');
+                        }
+                    }
+                });
+                
+                // クリックでファイル選択も可能
+                uploadArea.addEventListener('click', function(e) {
+                    // ボタンやプレビュー画像をクリックした場合は除外
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'IMG') {
+                        fileInput.click();
+                    }
+                });
+            });
         });
         
         // 漢字からローマ字への自動変換機能

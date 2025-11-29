@@ -339,11 +339,35 @@ input.form-control {
     border-radius: 8px;
     background: #fafafa;
     transition: all 0.3s;
+    position: relative;
+    cursor: pointer;
 }
 
 .upload-area:hover {
     border-color: #0066cc;
     background: #f0f7ff;
+}
+
+.upload-area.drag-over {
+    border-color: #0066cc;
+    background: #e6f2ff;
+    border-style: solid;
+    transform: scale(1.02);
+}
+
+.upload-area.drag-over::before {
+    content: 'ファイルをドロップしてください';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 102, 204, 0.9);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .upload-preview {

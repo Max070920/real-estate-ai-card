@@ -54,12 +54,12 @@ body {
 
 .nav a {
     text-decoration: none;
-    color: #333;
+    color: #ffffff;
     transition: color 0.3s;
 }
 
 .nav a:hover {
-    color: #0066cc;
+    color: #ffffff;
 }
 
 /* User Menu */
@@ -166,7 +166,8 @@ body {
 }
 
 .btn-primary:hover {
-    background: #0052a3;
+    background: #72acf8;
+    color: #0066cc;
 }
 
 .btn-secondary {

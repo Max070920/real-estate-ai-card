@@ -23,10 +23,10 @@ function goToStep(step) {
     document.querySelectorAll('.step').forEach((el, index) => {
         if (index + 1 <= step) {
             el.classList.add('active'); 
-            el.style.display = 'block';
+            // el.style.display = 'block';
         } else {
             el.classList.remove('active'); 
-            el.style.display = 'none';
+            // el.style.display = 'none';
         }
     });
     
