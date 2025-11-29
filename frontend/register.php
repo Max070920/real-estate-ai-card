@@ -256,14 +256,26 @@ $prefectures = [
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>氏名 <span class="required">*</span></label>
-                        <input type="text" name="name" class="form-control" required value="山田 太郎">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>姓 <span class="required">*</span></label>
+                            <input type="text" name="last_name" id="last_name" class="form-control" required placeholder="例：山田">
+                        </div>
+                        <div class="form-group">
+                            <label>名 <span class="required">*</span></label>
+                            <input type="text" name="first_name" id="first_name" class="form-control" required placeholder="例：太郎">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>ローマ字氏名</label>
-                        <input type="text" name="name_romaji" class="form-control" value="Taro Yamada">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ローマ字姓</label>
+                            <input type="text" name="last_name_romaji" id="last_name_romaji" class="form-control" placeholder="例：Yamada">
+                        </div>
+                        <div class="form-group">
+                            <label>ローマ字名</label>
+                            <input type="text" name="first_name_romaji" id="first_name_romaji" class="form-control" placeholder="例：Taro">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -691,6 +703,80 @@ $prefectures = [
         // Modal functionality
         document.getElementById('modal-confirm-btn')?.addEventListener('click', function() {
             window.location.href = 'login.php';
+        });
+        
+        // 漢字からローマ字への自動変換機能
+        // 簡易版：よく使われる名前の変換テーブルを使用
+        document.addEventListener('DOMContentLoaded', function() {
+            const lastNameInput = document.getElementById('last_name');
+            const firstNameInput = document.getElementById('first_name');
+            const lastNameRomajiInput = document.getElementById('last_name_romaji');
+            const firstNameRomajiInput = document.getElementById('first_name_romaji');
+            
+            // 簡易的な変換テーブル（よく使われる名前の例）
+            const nameConversionMap = {
+                '山田': 'Yamada', '田中': 'Tanaka', '佐藤': 'Sato', '鈴木': 'Suzuki',
+                '高橋': 'Takahashi', '伊藤': 'Ito', '渡辺': 'Watanabe', '中村': 'Nakamura',
+                '小林': 'Kobayashi', '加藤': 'Kato', '吉田': 'Yoshida', '山本': 'Yamamoto',
+                '松本': 'Matsumoto', '井上': 'Inoue', '木村': 'Kimura', '林': 'Hayashi',
+                '斎藤': 'Saito', '清水': 'Shimizu', '山崎': 'Yamazaki', '中島': 'Nakajima',
+                '前田': 'Maeda', '藤田': 'Fujita', '後藤': 'Goto', '近藤': 'Kondo',
+                '太郎': 'Taro', '次郎': 'Jiro', '三郎': 'Saburo', '花子': 'Hanako',
+                '一郎': 'Ichiro', '二郎': 'Jiro', '三郎': 'Saburo', '美咲': 'Misaki',
+                'さくら': 'Sakura', 'あかり': 'Akari', 'ひなた': 'Hinata', 'みお': 'Mio'
+            };
+            
+            // 漢字からローマ字への簡易変換関数
+            function convertToRomaji(japanese) {
+                if (!japanese) return '';
+                
+                // 変換テーブルに存在する場合はそれを使用
+                if (nameConversionMap[japanese]) {
+                    return nameConversionMap[japanese];
+                }
+                
+                // ひらがな・カタカナの場合はそのまま返す（後で変換可能）
+                // 漢字の場合は空文字を返す（ユーザーが手動で入力する必要がある）
+                return '';
+            }
+            
+            // 姓の入力時にローマ字姓を自動入力
+            if (lastNameInput && lastNameRomajiInput) {
+                let lastNameTimeout;
+                lastNameInput.addEventListener('input', function() {
+                    clearTimeout(lastNameTimeout);
+                    const value = this.value.trim();
+                    
+                    // ローマ字姓が空の場合のみ自動入力
+                    if (!lastNameRomajiInput.value.trim() && value) {
+                        lastNameTimeout = setTimeout(function() {
+                            const romaji = convertToRomaji(value);
+                            if (romaji) {
+                                lastNameRomajiInput.value = romaji;
+                            }
+                        }, 500); // 500ms後に変換を試みる
+                    }
+                });
+            }
+            
+            // 名の入力時にローマ字名を自動入力
+            if (firstNameInput && firstNameRomajiInput) {
+                let firstNameTimeout;
+                firstNameInput.addEventListener('input', function() {
+                    clearTimeout(firstNameTimeout);
+                    const value = this.value.trim();
+                    
+                    // ローマ字名が空の場合のみ自動入力
+                    if (!firstNameRomajiInput.value.trim() && value) {
+                        firstNameTimeout = setTimeout(function() {
+                            const romaji = convertToRomaji(value);
+                            if (romaji) {
+                                firstNameRomajiInput.value = romaji;
+                            }
+                        }, 500); // 500ms後に変換を試みる
+                    }
+                });
+            }
         });
     </script>
     <style>

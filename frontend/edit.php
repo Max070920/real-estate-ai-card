@@ -75,12 +75,23 @@ $userId = $_SESSION['user_id'];
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>氏名 <span class="required">*</span></label>
-                                <input type="text" name="name" class="form-control" required>
+                                <label>姓 <span class="required">*</span></label>
+                                <input type="text" name="last_name" id="edit_last_name" class="form-control" required placeholder="例：山田">
                             </div>
                             <div class="form-group">
-                                <label>ローマ字氏名</label>
-                                <input type="text" name="name_romaji" class="form-control">
+                                <label>名 <span class="required">*</span></label>
+                                <input type="text" name="first_name" id="edit_first_name" class="form-control" required placeholder="例：太郎">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>ローマ字姓</label>
+                                <input type="text" name="last_name_romaji" id="edit_last_name_romaji" class="form-control" placeholder="例：Yamada">
+                            </div>
+                            <div class="form-group">
+                                <label>ローマ字名</label>
+                                <input type="text" name="first_name_romaji" id="edit_first_name_romaji" class="form-control" placeholder="例：Taro">
                             </div>
                         </div>
 
@@ -131,6 +142,157 @@ $userId = $_SESSION['user_id'];
     </div>
 
     <script src="assets/js/edit.js"></script>
+    <script>
+        // 姓と名を結合して送信する処理
+        document.addEventListener('DOMContentLoaded', function() {
+            const basicForm = document.getElementById('basic-form');
+            if (basicForm) {
+                basicForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(basicForm);
+                    const data = {};
+                    
+                    // すべてのフィールドを取得
+                    for (let [key, value] of formData.entries()) {
+                        data[key] = value;
+                    }
+                    
+                    // 姓と名を結合
+                    const lastName = data.last_name || '';
+                    const firstName = data.first_name || '';
+                    data.name = (lastName + ' ' + firstName).trim();
+                    
+                    // ローマ字姓と名を結合
+                    const lastNameRomaji = data.last_name_romaji || '';
+                    const firstNameRomaji = data.first_name_romaji || '';
+                    data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
+                    
+                    // 不要なフィールドを削除
+                    delete data.last_name;
+                    delete data.first_name;
+                    delete data.last_name_romaji;
+                    delete data.first_name_romaji;
+                    
+                    // APIに送信
+                    fetch('../backend/api/business-card/update.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                        credentials: 'include'
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert('保存しました');
+                            // 必要に応じてページをリロード
+                            location.reload();
+                        } else {
+                            alert('保存に失敗しました: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('エラーが発生しました');
+                    });
+                });
+            }
+            
+            // データ読み込み時にnameを分割
+            // 既存のedit.jsがデータを読み込む場合は、その処理を上書き
+            if (typeof loadBusinessCardData === 'function') {
+                const originalLoad = loadBusinessCardData;
+                loadBusinessCardData = function(data) {
+                    originalLoad(data);
+                    
+                    // nameを姓と名に分割
+                    if (data.name) {
+                        const nameParts = data.name.trim().split(/\s+/);
+                        if (nameParts.length >= 2) {
+                            document.getElementById('edit_last_name').value = nameParts[0];
+                            document.getElementById('edit_first_name').value = nameParts.slice(1).join(' ');
+                        } else {
+                            document.getElementById('edit_last_name').value = data.name;
+                        }
+                    }
+                    
+                    // name_romajiを姓と名に分割
+                    if (data.name_romaji) {
+                        const romajiParts = data.name_romaji.trim().split(/\s+/);
+                        if (romajiParts.length >= 2) {
+                            document.getElementById('edit_last_name_romaji').value = romajiParts[0];
+                            document.getElementById('edit_first_name_romaji').value = romajiParts.slice(1).join(' ');
+                        } else {
+                            document.getElementById('edit_last_name_romaji').value = data.name_romaji;
+                        }
+                    }
+                };
+            }
+        });
+        
+        // 漢字からローマ字への自動変換機能（edit.php用）
+        document.addEventListener('DOMContentLoaded', function() {
+            const lastNameInput = document.getElementById('edit_last_name');
+            const firstNameInput = document.getElementById('edit_first_name');
+            const lastNameRomajiInput = document.getElementById('edit_last_name_romaji');
+            const firstNameRomajiInput = document.getElementById('edit_first_name_romaji');
+            
+            // 簡易的な変換テーブル
+            const nameConversionMap = {
+                '山田': 'Yamada', '田中': 'Tanaka', '佐藤': 'Sato', '鈴木': 'Suzuki',
+                '高橋': 'Takahashi', '伊藤': 'Ito', '渡辺': 'Watanabe', '中村': 'Nakamura',
+                '小林': 'Kobayashi', '加藤': 'Kato', '吉田': 'Yoshida', '山本': 'Yamamoto',
+                '松本': 'Matsumoto', '井上': 'Inoue', '木村': 'Kimura', '林': 'Hayashi',
+                '斎藤': 'Saito', '清水': 'Shimizu', '山崎': 'Yamazaki', '中島': 'Nakajima',
+                '前田': 'Maeda', '藤田': 'Fujita', '後藤': 'Goto', '近藤': 'Kondo',
+                '太郎': 'Taro', '次郎': 'Jiro', '三郎': 'Saburo', '花子': 'Hanako',
+                '一郎': 'Ichiro', '二郎': 'Jiro', '三郎': 'Saburo', '美咲': 'Misaki',
+                'さくら': 'Sakura', 'あかり': 'Akari', 'ひなた': 'Hinata', 'みお': 'Mio'
+            };
+            
+            function convertToRomaji(japanese) {
+                if (!japanese) return '';
+                if (nameConversionMap[japanese]) {
+                    return nameConversionMap[japanese];
+                }
+                return '';
+            }
+            
+            if (lastNameInput && lastNameRomajiInput) {
+                let lastNameTimeout;
+                lastNameInput.addEventListener('input', function() {
+                    clearTimeout(lastNameTimeout);
+                    const value = this.value.trim();
+                    if (!lastNameRomajiInput.value.trim() && value) {
+                        lastNameTimeout = setTimeout(function() {
+                            const romaji = convertToRomaji(value);
+                            if (romaji) {
+                                lastNameRomajiInput.value = romaji;
+                            }
+                        }, 500);
+                    }
+                });
+            }
+            
+            if (firstNameInput && firstNameRomajiInput) {
+                let firstNameTimeout;
+                firstNameInput.addEventListener('input', function() {
+                    clearTimeout(firstNameTimeout);
+                    const value = this.value.trim();
+                    if (!firstNameRomajiInput.value.trim() && value) {
+                        firstNameTimeout = setTimeout(function() {
+                            const romaji = convertToRomaji(value);
+                            if (romaji) {
+                                firstNameRomajiInput.value = romaji;
+                            }
+                        }, 500);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 

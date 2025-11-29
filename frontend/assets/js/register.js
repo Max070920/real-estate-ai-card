@@ -630,8 +630,14 @@ function collectFormData() {
     const step4Form = document.getElementById('personal-info-form');
     if (step4Form) {
         const formData = new FormData(step4Form);
-        data.name = formData.get('name') || '';
-        data.name_romaji = formData.get('name_romaji') || '';
+        // Combine last_name and first_name
+        const lastName = formData.get('last_name') || '';
+        const firstName = formData.get('first_name') || '';
+        data.name = (lastName + ' ' + firstName).trim();
+        // Combine romaji names
+        const lastNameRomaji = formData.get('last_name_romaji') || '';
+        const firstNameRomaji = formData.get('first_name_romaji') || '';
+        data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
         data.branch_department = formData.get('branch_department') || '';
         data.position = formData.get('position') || '';
         data.mobile_phone = formData.get('mobile_phone') || '';
