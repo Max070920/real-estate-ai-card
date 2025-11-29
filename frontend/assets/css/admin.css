@@ -68,6 +68,48 @@ body {
     box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
 }
 
+/* Password Input Wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-control {
+    padding-right: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.3s;
+    z-index: 1;
+}
+
+.password-toggle:hover {
+    color: #0066cc;
+}
+
+.password-toggle:focus {
+    outline: none;
+    color: #0066cc;
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+}
+
 .btn-primary {
     background: #0066cc;
     color: #fff;
