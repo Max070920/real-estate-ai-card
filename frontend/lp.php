@@ -16,15 +16,22 @@ require_once __DIR__ . '/../backend/config/config.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 </head>
 <body>
-    <?php 
-    $showNavLinks = false; // Hide nav links on LP
-    include __DIR__ . '/includes/header.php'; 
-    ?>
-    
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.php">
+                        <img src="assets/images/logo.png" alt="不動産AI名刺">
+                    </a>
+                </div>
+                <div class="fixed-cta-button">
+                    <a href="new_register.php" class="btn-primary">今すぐ始める</a>
+                </div>
+            </div>
+        </div>
+    </header>
     <!-- Fixed CTA Button -->
-    <div class="fixed-cta-button">
-        <a href="new_register.php" class="btn-primary">今すぐ始める</a>
-    </div>
+    
 
     <!-- Hero Slider Section -->
     <section class="hero-slider">
@@ -151,14 +158,18 @@ require_once __DIR__ . '/../backend/config/config.php';
                 <div class="feature-visual">
                     <div class="feature-image-wrapper line-feature">
                         <div class="line-placeholder">
-                            <div class="line-logo">LINE</div>
-                            <div class="qr-placeholder"></div>
+                            <div class="line-logo">
+                                <img src="assets/images/icons/line.png" alt="LINE">
+                            </div>
+                            <div class="qr-placeholder">
+                                <img src="assets/images/qr.png" alt="QR">
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="feature-text">
                     <div class="feature-badge">機能01</div>
-                    <h2 class="feature-title">ワンタップで<br><span class="text-line">LINE連携</span>完了</h2>
+                    <h2 class="feature-title">ワンタップで<br>LINE連携完了</h2>
                     <p class="feature-description">
                         QRコードを読み込むだけで、その場で顧客とLINEでつながれます。名刺交換後の失注を防ぎ、確実なコミュニケーション手段を確立します。
                     </p>
@@ -193,7 +204,8 @@ require_once __DIR__ . '/../backend/config/config.php';
                     </ul>
                 </div>
                 <div class="feature-visual">
-                    <div class="feature-image-wrapper dashboard">
+                    <img src="assets/images/dashboard.jpg" alt="Dashboard" class="feature-image">
+                    <!-- <div class="feature-image-wrapper dashboard">
                         <div class="dashboard-placeholder">
                             <div class="dashboard-header">Dashboard</div>
                             <div class="dashboard-content">
@@ -202,7 +214,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                                 <div class="dashboard-chart"></div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -213,7 +225,8 @@ require_once __DIR__ . '/../backend/config/config.php';
         <div class="container">
             <div class="feature-content">
                 <div class="feature-visual">
-                    <div class="feature-image-wrapper phone">
+                    <img src="assets/images/sec-3.jpg" alt="Phone" class="feature-image">
+                    <!-- <div class="feature-image-wrapper phone">
                         <div class="phone-placeholder">
                             <div class="phone-screen">
                                 <div class="phone-header">Create Card</div>
@@ -225,7 +238,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="feature-text">
                     <div class="feature-badge">機能03</div>
@@ -271,7 +284,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">全国マンションデータベース</h3>
                     <span class="tool-tag tag-purple">売り・買い</span>
                     <p class="tool-description">全国の分譲マンションの95%以上を網羅。販売履歴の閲覧が最も多い人気ツール。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
                 
                 <div class="tool-card">
@@ -281,7 +293,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">物件提案ロボ</h3>
                     <span class="tool-tag tag-blue">買い</span>
                     <p class="tool-description">希望条件に合致した中古マンション・一戸建て情報を、売り出し開始から24時間以内にAI評価付きで自動配信。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
                 
                 <div class="tool-card">
@@ -291,7 +302,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">土地情報ロボ</h3>
                     <span class="tool-tag tag-blue">買い</span>
                     <p class="tool-description">希望条件に合致した土地情報を、売り出し開始から24時間以内に自動でお届け。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
                 
                 <div class="tool-card">
@@ -301,7 +311,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">AIマンション査定</h3>
                     <span class="tool-tag tag-green">売り</span>
                     <p class="tool-description">個人情報不要でマンションの査定を実施。「マンション」「査定」でTOP表示される信頼のコンテンツ。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
                 
                 <div class="tool-card">
@@ -311,7 +320,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">セルフィン</h3>
                     <span class="tool-tag tag-blue">買い</span>
                     <p class="tool-description">中古マンション・一戸建ての物件情報から、物件の良し悪しをAIが自動判定。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
                 
                 <div class="tool-card">
@@ -321,7 +329,6 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <h3 class="tool-title">オーナーコネクト</h3>
                     <span class="tool-tag tag-green">売り</span>
                     <p class="tool-description">マンション所有者向けの資産ウォッチツール。週1回の査定レポートと売り出し情報を即時配信。</p>
-                    <a href="#" class="tool-link">詳細を見る →</a>
                 </div>
             </div>
         </div>
@@ -340,8 +347,8 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <div class="step-label">STEP 01</div>
                     <h3 class="step-title">アカウント登録</h3>
                     <p class="step-description">メールアドレスと携帯電話番号でSMS認証を行います。</p>
+                    <div class="step-arrow">→</div> 
                 </div>
-                <div class="step-arrow">→</div>
                 <div class="step-card">
                     <div class="step-number-bg">02</div>
                     <div class="step-icon-box">
@@ -350,8 +357,8 @@ require_once __DIR__ . '/../backend/config/config.php';
                     <div class="step-label">STEP 02</div>
                     <h3 class="step-title">情報入力</h3>
                     <p class="step-description">会社情報、個人情報、使用するテックツールを選択します。</p>
+                    <div class="step-arrow">→</div>
                 </div>
-                <div class="step-arrow">→</div>
                 <div class="step-card">
                     <div class="step-number-bg">03</div>
                     <div class="step-icon-box">
@@ -378,7 +385,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                         <span class="testimonial-bullet">•</span>
                         <span class="testimonial-label">お客様の声</span>
                     </div>
-                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-quote">!!</div>
                     <p class="testimonial-text">
                         名刺交換後の失注が激減。顧客との信頼関係構築が圧倒的に早くなりました。
                     </p>
@@ -403,7 +410,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                         <span class="testimonial-bullet">•</span>
                         <span class="testimonial-label">お客様の声</span>
                     </div>
-                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-quote">!!</div>
                     <p class="testimonial-text">
                         物件提案の効率が大幅に向上し、成約率が2倍になりました。顧客からの問い合わせも増えています。
                     </p>
@@ -428,7 +435,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                         <span class="testimonial-bullet">•</span>
                         <span class="testimonial-label">お客様の声</span>
                     </div>
-                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-quote">!!</div>
                     <p class="testimonial-text">
                         AI査定ツールのおかげで、顧客との会話がスムーズになり、信頼を得やすくなりました。
                     </p>
@@ -464,7 +471,7 @@ require_once __DIR__ . '/../backend/config/config.php';
                         営業力を次のレベルへ
                     </h2>
                     <p class="cta-description">
-                        3分で完成。即日利用開始。あなたの営業活動を劇的に変える、不動産AI名刺を今すぐ作成しましょう。
+                        3分で完成。即日利用開始。<br>あなたの営業活動を劇的に変える、不動産AI名刺を今すぐ作成しましょう。
                     </p>
                     <a href="new_register.php" class="btn-primary btn-large">もう少し詳しく知る</a>
                 </div>
@@ -474,7 +481,10 @@ require_once __DIR__ . '/../backend/config/config.php';
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-background-text">REAL ESTATE AI</div>
+        <div class="footer-background-text">
+            <span>REAL ESTATE</span> 
+            <span>AI</span>
+        </div>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
