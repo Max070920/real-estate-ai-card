@@ -78,5 +78,48 @@ document.addEventListener('DOMContentLoaded', function() {
             newsletterForm.reset();
         });
     }
+    
+    // Adjust feature-visual height to be slightly larger than feature-text
+    function adjustFeatureVisualHeight() {
+        document.querySelectorAll('.feature-content').forEach(featureContent => {
+            const featureText = featureContent.querySelector('.feature-text');
+            const featureVisual = featureContent.querySelector('.feature-visual');
+            
+            if (featureText && featureVisual) {
+                // Reset height to get natural height
+                featureVisual.style.height = 'auto';
+                featureText.style.height = 'auto';
+                
+                // Get the actual heights
+                const textHeight = featureText.offsetHeight;
+                
+                // Set visual height to be 10% larger than text height (minimum 50px extra)
+                const extraHeight = Math.max(textHeight * 0.1, 50);
+                const visualHeight = textHeight + extraHeight;
+                
+                featureVisual.style.height = visualHeight + 'px';
+                featureVisual.style.minHeight = visualHeight + 'px';
+            }
+        });
+    }
+    
+    // Adjust heights on load
+    adjustFeatureVisualHeight();
+    
+    // Adjust heights when window is resized
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(adjustFeatureVisualHeight, 250);
+    });
+    
+    // Adjust heights when images are loaded (for feature images)
+    document.querySelectorAll('.feature-image').forEach(img => {
+        if (img.complete) {
+            adjustFeatureVisualHeight();
+        } else {
+            img.addEventListener('load', adjustFeatureVisualHeight);
+        }
+    });
 });
 
