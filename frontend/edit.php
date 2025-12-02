@@ -39,39 +39,145 @@ $userId = $_SESSION['user_id'];
         <div class="edit-content">
             <div class="edit-sidebar">
                 <nav class="edit-nav">
-                    <a href="#basic" class="nav-item active">基本情報</a>
-                    <a href="#greetings" class="nav-item">挨拶文</a>
+                    <a href="#header-greeting" class="nav-item active">ヘッダー・挨拶</a>
+                    <a href="#company-profile" class="nav-item">会社プロフィール</a>
+                    <a href="#personal-info" class="nav-item">個人情報</a>
                     <a href="#tech-tools" class="nav-item">テックツール</a>
                     <a href="#communication" class="nav-item">コミュニケーション</a>
                 </nav>
             </div>
 
             <div class="edit-main">
-                <div id="basic-section" class="edit-section active">
-                    <h2>基本情報</h2>
-                    <form id="basic-form" class="edit-form">
+                <!-- Step 1: Header & Greeting -->
+                <div id="header-greeting-section" class="edit-section active">
+                    <h2>ヘッダー・挨拶部</h2>
+                    <p class="step-description">会社情報とご挨拶文を入力してください</p>
+                    <form id="header-greeting-form" class="edit-form">
                         <div class="form-group">
                             <label>会社名 <span class="required">*</span></label>
                             <input type="text" name="company_name" class="form-control" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>ロゴ</label>
+                        <div class="form-section">
+                            <h3>ロゴマーク</h3>
                             <div class="upload-area" data-upload-id="company_logo">
                                 <input type="file" id="company_logo" accept="image/*" style="display: none;">
                                 <button type="button" class="btn-upload" onclick="document.getElementById('company_logo').click()">アップロード</button>
                                 <div class="upload-preview"></div>
-                                <small>ファイルを選択するか、ここにドラッグ&ドロップしてください</small>
+                                <small>ファイルを選択するか、ここにドラッグ&ドロップしてください（自動でリサイズされます）</small>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>顔写真</label>
+                        <div class="form-section">
+                            <h3>顔写真</h3>
                             <div class="upload-area" data-upload-id="profile_photo">
                                 <input type="file" id="profile_photo" accept="image/*" style="display: none;">
                                 <button type="button" class="btn-upload" onclick="document.getElementById('profile_photo').click()">アップロード</button>
                                 <div class="upload-preview"></div>
-                                <small>ファイルを選択するか、ここにドラッグ&ドロップしてください</small>
+                                <small>ファイルを選択するか、ここにドラッグ&ドロップしてください（自動でリサイズされます）</small>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>ご挨拶 <span class="required">*</span></h3>
+                            <p class="section-note">挨拶文の順序を上下のボタンで変更できます。デフォルトの文章もそのまま使用できます。</p>
+                            <div id="greetings-list"></div>
+                            <button type="button" class="btn-add" onclick="addGreeting()">挨拶文を追加</button>
+                        </div>
+
+                        <button type="submit" class="btn-primary">保存</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Company Profile -->
+                <div id="company-profile-section" class="edit-section">
+                    <h2>会社プロフィール部</h2>
+                    <p class="step-description">会社情報を入力してください</p>
+                    <form id="company-profile-form" class="edit-form">
+                        <?php
+                        // Japanese prefectures
+                        $prefectures = [
+                            '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+                            '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+                            '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+                            '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+                            '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+                            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+                            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
+                        ];
+                        ?>
+                        <div class="form-section">
+                            <h3>宅建業者番号</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>都道府県</label>
+                                    <select name="real_estate_license_prefecture" id="license_prefecture" class="form-control">
+                                        <option value="">選択してください</option>
+                                        <?php foreach ($prefectures as $pref): ?>
+                                        <option value="<?php echo htmlspecialchars($pref); ?>"><?php echo htmlspecialchars($pref); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>更新番号</label>
+                                    <select name="real_estate_license_renewal_number" id="license_renewal" class="form-control">
+                                        <option value="">選択してください</option>
+                                        <?php for ($i = 1; $i <= 20; $i++): ?>
+                                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>登録番号</label>
+                                    <input type="text" name="real_estate_license_registration_number" id="license_registration" class="form-control" placeholder="例：12345">
+                                    <button type="button" class="btn-outline" id="lookup-license" style="margin-top: 0.5rem;">住所を自動入力</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>会社名 <span class="required">*</span></label>
+                            <input type="text" name="company_name_profile" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>郵便番号 <span class="required">*</span></label>
+                            <input type="text" name="company_postal_code" id="company_postal_code" class="form-control" placeholder="例：123-4567" required>
+                            <button type="button" class="btn-outline" id="lookup-address" style="margin-top: 0.5rem;">住所を自動入力</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>住所 <span class="required">*</span></label>
+                            <input type="text" name="company_address" id="company_address" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>会社電話番号</label>
+                            <input type="tel" name="company_phone" class="form-control" placeholder="例：03-1234-5678">
+                        </div>
+
+                        <div class="form-group">
+                            <label>会社HP URL</label>
+                            <input type="url" name="company_website" class="form-control" placeholder="https://example.com">
+                        </div>
+
+                        <button type="submit" class="btn-primary">保存</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Personal Information -->
+                <div id="personal-info-section" class="edit-section">
+                    <h2>個人情報</h2>
+                    <p class="step-description">あなたの個人情報を入力してください</p>
+                    <form id="personal-info-form" class="edit-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>部署</label>
+                                <input type="text" name="branch_department" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>役職</label>
+                                <input type="text" name="position" class="form-control">
                             </div>
                         </div>
 
@@ -97,14 +203,81 @@ $userId = $_SESSION['user_id'];
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label>電話番号 <span class="required">*</span></label>
+                            <input type="tel" name="mobile_phone" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>生年月日</label>
+                            <input type="date" name="birth_date" class="form-control">
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
-                                <label>部署</label>
-                                <input type="text" name="branch_department" class="form-control">
+                                <label>現在の居住地</label>
+                                <input type="text" name="current_residence" class="form-control" placeholder="例：東京都渋谷区">
                             </div>
                             <div class="form-group">
-                                <label>役職</label>
-                                <input type="text" name="position" class="form-control">
+                                <label>出身地</label>
+                                <input type="text" name="hometown" class="form-control" placeholder="例：大阪府大阪市">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>出身校</label>
+                            <input type="text" name="alma_mater" class="form-control" placeholder="例：○○大学 経済学部">
+                        </div>
+
+                        <div class="form-section">
+                            <h3>資格</h3>
+                            <div class="qualifications-section">
+                                <div class="form-group">
+                                    <label>主な資格（選択）</label>
+                                    <div class="checkbox-list">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="qualification_takken" value="1">
+                                            <span>宅地建物取引士</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="qualification_kenchikushi" value="1">
+                                            <span>建築士</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>その他の資格（自由入力）</label>
+                                    <textarea name="qualifications_other" class="form-control" rows="2" placeholder="その他の資格を入力してください"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>趣味</label>
+                            <textarea name="hobbies" class="form-control" rows="2" placeholder="趣味や興味があることを入力してください"></textarea>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>フリー入力欄</h3>
+                            <p class="section-note">自由にアピールポイントや追加情報を入力できます。YouTubeのリンクなども貼り付けられます。</p>
+                            <div class="form-group">
+                                <label>テキスト</label>
+                                <textarea name="free_input_text" class="form-control" rows="4" placeholder="自由に入力してください。&#10;例：YouTubeリンク: https://www.youtube.com/watch?v=xxxxx"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>画像・バナー（リンク付き画像）</label>
+                                <div class="upload-area" id="free-image-upload" data-upload-id="free_image">
+                                    <input type="file" id="free_image" name="free_image" accept="image/*" style="display: none;">
+                                    <div class="upload-preview"></div>
+                                    <button type="button" class="btn-outline" onclick="document.getElementById('free_image').click()">
+                                        画像をアップロード
+                                    </button>
+                                    <small>ファイルを選択するか、ここにドラッグ&ドロップしてください</small>
+                                </div>
+                                <div class="form-group" style="margin-top: 0.5rem;">
+                                    <label>画像のリンク先URL（任意）</label>
+                                    <input type="url" name="free_image_link" class="form-control" placeholder="https://example.com">
+                                </div>
                             </div>
                         </div>
 
@@ -112,22 +285,18 @@ $userId = $_SESSION['user_id'];
                     </form>
                 </div>
 
-                <div id="greetings-section" class="edit-section">
-                    <h2>挨拶文</h2>
-                    <div id="greetings-list"></div>
-                    <button type="button" class="btn-add" onclick="addGreeting()">挨拶文を追加</button>
-                    <button type="button" class="btn-primary" onclick="saveGreetings()">保存</button>
-                </div>
-
+                <!-- Step 4: Tech Tools -->
                 <div id="tech-tools-section" class="edit-section">
-                    <h2>テックツール</h2>
-                    <p>表示するテックツールを選択してください（最低2つ以上）</p>
+                    <h2>テックツール選択</h2>
+                    <p class="step-description">表示させるテックツールを選択してください（最低2つ以上）</p>
                     <div id="tech-tools-list"></div>
                     <button type="button" class="btn-primary" onclick="saveTechTools()">保存</button>
                 </div>
 
+                <!-- Step 5: Communication Functions -->
                 <div id="communication-section" class="edit-section">
-                    <h2>コミュニケーション方法</h2>
+                    <h2>コミュニケーション機能部</h2>
+                    <p class="step-description">メッセージアプリやSNSの連携を設定してください</p>
                     <div id="communication-list"></div>
                     <button type="button" class="btn-add" onclick="addCommunicationMethod()">追加</button>
                     <button type="button" class="btn-primary" onclick="saveCommunicationMethods()">保存</button>
@@ -145,38 +314,38 @@ $userId = $_SESSION['user_id'];
 
     <script src="assets/js/edit.js"></script>
     <script>
-        // 姓と名を結合して送信する処理
+        // Step 1: Header & Greeting form submission
         document.addEventListener('DOMContentLoaded', function() {
-            const basicForm = document.getElementById('basic-form');
-            if (basicForm) {
-                basicForm.addEventListener('submit', async function(e) {
+            const headerGreetingForm = document.getElementById('header-greeting-form');
+            if (headerGreetingForm) {
+                headerGreetingForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
-                    const formData = new FormData(basicForm);
+                    const formData = new FormData(headerGreetingForm);
                     const data = {};
                     
-                    // すべてのフィールドを取得
+                    // Get all fields
                     for (let [key, value] of formData.entries()) {
                         data[key] = value;
                     }
                     
-                    // 姓と名を結合
-                    const lastName = data.last_name || '';
-                    const firstName = data.first_name || '';
-                    data.name = (lastName + ' ' + firstName).trim();
+                    // Handle greetings
+                    const greetingItems = document.querySelectorAll('#greetings-list .greeting-item');
+                    const greetings = [];
+                    greetingItems.forEach((item, index) => {
+                        const title = item.querySelector('.greeting-title')?.value || '';
+                        const content = item.querySelector('.greeting-content')?.value || '';
+                        if (title || content) {
+                            greetings.push({
+                                title: title,
+                                content: content,
+                                display_order: index
+                            });
+                        }
+                    });
+                    data.greetings = greetings;
                     
-                    // ローマ字姓と名を結合
-                    const lastNameRomaji = data.last_name_romaji || '';
-                    const firstNameRomaji = data.first_name_romaji || '';
-                    data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
-                    
-                    // 不要なフィールドを削除
-                    delete data.last_name;
-                    delete data.first_name;
-                    delete data.last_name_romaji;
-                    delete data.first_name_romaji;
-                    
-                    // ロゴとプロフィール写真のパスを追加（既にアップロード済みの場合）
+                    // Handle logo and photo paths
                     if (window.businessCardData) {
                         if (window.businessCardData.company_logo && !data.company_logo) {
                             data.company_logo = window.businessCardData.company_logo;
@@ -186,7 +355,7 @@ $userId = $_SESSION['user_id'];
                         }
                     }
                     
-                    // APIに送信
+                    // Send to API
                     try {
                         const response = await fetch('../backend/api/business-card/update.php', {
                             method: 'POST',
@@ -201,7 +370,6 @@ $userId = $_SESSION['user_id'];
                         
                         if (result.success) {
                             alert('保存しました');
-                            // データを再読み込み
                             loadBusinessCardData();
                         } else {
                             alert('保存に失敗しました: ' + result.message);
@@ -212,6 +380,227 @@ $userId = $_SESSION['user_id'];
                     }
                 });
             }
+            
+            // Step 2: Company Profile form submission
+            const companyProfileForm = document.getElementById('company-profile-form');
+            if (companyProfileForm) {
+                companyProfileForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(companyProfileForm);
+                    const data = {};
+                    
+                    for (let [key, value] of formData.entries()) {
+                        data[key] = value;
+                    }
+                    
+                    // Merge company_name from profile step
+                    if (data.company_name_profile) {
+                        data.company_name = data.company_name_profile;
+                        delete data.company_name_profile;
+                    }
+                    
+                    try {
+                        const response = await fetch('../backend/api/business-card/update.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                            credentials: 'include'
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            alert('保存しました');
+                            loadBusinessCardData();
+                        } else {
+                            alert('保存に失敗しました: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('エラーが発生しました');
+                    }
+                });
+            }
+            
+            // Step 3: Personal Information form submission
+            const personalInfoForm = document.getElementById('personal-info-form');
+            if (personalInfoForm) {
+                personalInfoForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(personalInfoForm);
+                    const data = {};
+                    
+                    for (let [key, value] of formData.entries()) {
+                        data[key] = value;
+                    }
+                    
+                    // Combine last_name and first_name
+                    const lastName = data.last_name || '';
+                    const firstName = data.first_name || '';
+                    data.name = (lastName + ' ' + firstName).trim();
+                    
+                    // Combine romaji names
+                    const lastNameRomaji = data.last_name_romaji || '';
+                    const firstNameRomaji = data.first_name_romaji || '';
+                    data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
+                    
+                    // Handle qualifications
+                    const qualifications = [];
+                    if (formData.get('qualification_takken')) {
+                        qualifications.push('宅地建物取引士');
+                    }
+                    if (formData.get('qualification_kenchikushi')) {
+                        qualifications.push('建築士');
+                    }
+                    if (data.qualifications_other) {
+                        qualifications.push(data.qualifications_other);
+                    }
+                    data.qualifications = qualifications.join('、');
+                    delete data.qualification_takken;
+                    delete data.qualification_kenchikushi;
+                    delete data.qualifications_other;
+                    
+                    // Handle free input
+                    let freeInputData = {
+                        text: data.free_input_text || '',
+                        image_link: data.free_image_link || ''
+                    };
+                    
+                    // Handle free image upload
+                    const freeImageFile = document.getElementById('free_image').files[0];
+                    if (freeImageFile) {
+                        const uploadData = new FormData();
+                        uploadData.append('file', freeImageFile);
+                        uploadData.append('file_type', 'free');
+                        
+                        try {
+                            const uploadResponse = await fetch('../backend/api/business-card/upload.php', {
+                                method: 'POST',
+                                body: uploadData,
+                                credentials: 'include'
+                            });
+                            
+                            const uploadResult = await uploadResponse.json();
+                            if (uploadResult.success) {
+                                const fullPath = uploadResult.data.file_path;
+                                const relativePath = fullPath.split('/php/')[1];
+                                freeInputData.image = relativePath;
+                            }
+                        } catch (error) {
+                            console.error('Upload error:', error);
+                        }
+                    } else if (window.businessCardData && window.businessCardData.free_input) {
+                        try {
+                            const existingFreeInput = JSON.parse(window.businessCardData.free_input);
+                            if (existingFreeInput.image) {
+                                freeInputData.image = existingFreeInput.image;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing free_input:', e);
+                        }
+                    }
+                    
+                    data.free_input = JSON.stringify(freeInputData);
+                    delete data.free_input_text;
+                    delete data.free_image_link;
+                    delete data.last_name;
+                    delete data.first_name;
+                    delete data.last_name_romaji;
+                    delete data.first_name_romaji;
+                    
+                    try {
+                        const response = await fetch('../backend/api/business-card/update.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                            credentials: 'include'
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            alert('保存しました');
+                            loadBusinessCardData();
+                        } else {
+                            alert('保存に失敗しました: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('エラーが発生しました');
+                    }
+                });
+            }
+            
+            // Postal code lookup
+            document.getElementById('lookup-address')?.addEventListener('click', async () => {
+                const postalCode = document.getElementById('company_postal_code').value.replace(/-/g, '');
+                
+                if (!postalCode || postalCode.length !== 7) {
+                    alert('7桁の郵便番号を入力してください');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`../backend/api/utils/postal-code-lookup.php?postal_code=${postalCode}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        document.getElementById('company_address').value = result.data.address;
+                    } else {
+                        alert(result.message || '住所の取得に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました');
+                }
+            });
+            
+            // License lookup
+            document.getElementById('lookup-license')?.addEventListener('click', async () => {
+                const prefecture = document.getElementById('license_prefecture').value;
+                const renewal = document.getElementById('license_renewal').value;
+                const registration = document.getElementById('license_registration').value;
+                
+                if (!prefecture || !renewal || !registration) {
+                    alert('都道府県、更新番号、登録番号をすべて入力してください');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('../backend/api/utils/license-lookup.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prefecture: prefecture,
+                            renewal: renewal,
+                            registration: registration
+                        })
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        if (result.data.company_name) {
+                            document.querySelector('input[name="company_name_profile"]').value = result.data.company_name;
+                        }
+                        if (result.data.address) {
+                            document.getElementById('company_address').value = result.data.address;
+                        }
+                    } else {
+                        alert(result.message || '会社情報の取得に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました');
+                }
+            });
         });
         
         // 漢字からローマ字への自動変換機能（edit.php用）

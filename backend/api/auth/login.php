@@ -63,6 +63,11 @@ try {
         sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
     }
 
+    // メール認証チェック
+    if ($user['email_verified'] == 0) {
+        sendErrorResponse('メール認証が完了していません。登録時に送信されたメールの認証リンクをクリックして認証を完了してください。', 403);
+    }
+
     // ステータスチェック
     if ($user['status'] === 'suspended' || $user['status'] === 'cancelled') {
         sendErrorResponse('このアカウントは利用できません', 403);

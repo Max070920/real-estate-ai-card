@@ -591,6 +591,13 @@ body {
     border: 1px solid #e0e0e0;
 }
 
+.comm-icon-img {
+    width: 30px;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 8px;
+}
+
 .category-title {
     font-size: 1.3rem;
     color: #0066cc;

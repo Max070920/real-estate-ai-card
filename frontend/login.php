@@ -128,7 +128,11 @@ if (!empty($_SESSION['user_id'])) {
             <div class="login-link">
                 <a href="new_register.php">アカウントをお持ちでない方はこちら</a>
             </div>
+            <div class="login-link" style="margin-top: 0.5rem;">
+                <a href="#" id="resend-verification-link" style="font-size: 0.9rem; display: none;">認証メールを再送信する</a>
+            </div>
             <div id="error-message" style="color: red; margin-top: 1rem; display: none;"></div>
+            <div id="success-message" style="color: green; margin-top: 1rem; display: none;"></div>
         </div>
     </div>
     
@@ -178,13 +182,55 @@ if (!empty($_SESSION['user_id'])) {
                 if (result.success) {
                     window.location.href = 'edit.php';
                 } else {
-                    document.getElementById('error-message').textContent = result.message || 'ログインに失敗しました';
+                    const errorMsg = result.message || 'ログインに失敗しました';
+                    document.getElementById('error-message').textContent = errorMsg;
                     document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('success-message').style.display = 'none';
+                    
+                    // メール未認証のエラーの場合、再送信リンクを表示
+                    if (errorMsg.includes('認証') || errorMsg.includes('メール')) {
+                        document.getElementById('resend-verification-link').style.display = 'block';
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('error-message').textContent = 'エラーが発生しました';
                 document.getElementById('error-message').style.display = 'block';
+            }
+        });
+        
+        // メール再送信機能
+        document.getElementById('resend-verification-link').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.querySelector('input[name="email"]').value;
+            
+            if (!email) {
+                alert('メールアドレスを入力してください');
+                return;
+            }
+            
+            try {
+                const response = await fetch('../backend/api/auth/resend-verification.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('success-message').textContent = result.message || '認証メールを再送信しました';
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                } else {
+                    document.getElementById('error-message').textContent = result.message || 'メール送信に失敗しました';
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('エラーが発生しました');
             }
         });
     </script>
