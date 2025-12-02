@@ -208,7 +208,10 @@ function displayGreetings(greetings) {
 // Display tech tools
 function displayTechTools(techTools) {
     const techToolsList = document.getElementById('tech-tools-list');
-    if (!techToolsList) return;
+    if (!techToolsList) {
+        console.error('Tech tools list element not found');
+        return;
+    }
     
     const toolNames = {
         'mdb': '全国マンションデータベース',
@@ -228,22 +231,37 @@ function displayTechTools(techTools) {
         'olp': '💼'
     };
     
+    // All available tools
+    const allTools = ['mdb', 'rlp', 'llp', 'ai', 'slp', 'olp'];
+    
     techToolsList.innerHTML = '';
     
-    techTools.forEach(tool => {
+    // Display all tools, marking which ones are selected
+    allTools.forEach((toolType, index) => {
+        const existingTool = techTools.find(t => t.tool_type === toolType);
+        const isActive = existingTool ? (existingTool.is_active === 1 || existingTool.is_active === true) : false;
+        
         const toolItem = document.createElement('div');
         toolItem.className = 'tech-tool-item';
-        toolItem.dataset.id = tool.id;
-        toolItem.dataset.toolType = tool.tool_type;
+        toolItem.style.cssText = 'margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;';
+        if (existingTool) {
+            toolItem.dataset.id = existingTool.id;
+        }
+        toolItem.dataset.toolType = toolType;
         toolItem.innerHTML = `
-            <label class="tech-tool-checkbox">
-                <input type="checkbox" ${tool.is_active ? 'checked' : ''} onchange="toggleTechTool(${tool.id}, this.checked)">
-                <div class="tool-icon">${toolIcons[tool.tool_type] || '📋'}</div>
-                <span>${toolNames[tool.tool_type] || tool.tool_type}</span>
+            <label class="tech-tool-checkbox" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleTechTool('${toolType}', this.checked)">
+                <div class="tool-icon" style="font-size: 24px;">${toolIcons[toolType] || '📋'}</div>
+                <div>
+                    <div style="font-weight: bold;">${toolNames[toolType] || toolType}</div>
+                    ${existingTool && existingTool.tool_url ? `<div style="font-size: 0.85rem; color: #666;">${existingTool.tool_url}</div>` : ''}
+                </div>
             </label>
         `;
         techToolsList.appendChild(toolItem);
     });
+    
+    console.log('Tech tools displayed:', techTools);
 }
 
 // Display communication methods
@@ -469,13 +487,8 @@ function deleteGreeting(id) {
 }
 
 // Toggle tech tool
-async function toggleTechTool(id, isActive) {
-    if (!businessCardData || !businessCardData.tech_tools) return;
-    
-    const tool = businessCardData.tech_tools.find(t => t.id === id);
-    if (!tool) return;
-    
-    tool.is_active = isActive ? 1 : 0;
+async function toggleTechTool(toolTypeOrId, isActive) {
+    console.log('Toggle tech tool:', toolTypeOrId, isActive);
     
     // Save immediately
     await saveTechTools();
@@ -483,19 +496,56 @@ async function toggleTechTool(id, isActive) {
 
 // Save tech tools
 async function saveTechTools() {
-    if (!businessCardData || !businessCardData.tech_tools) return;
+    const techToolsList = document.getElementById('tech-tools-list');
+    if (!techToolsList) {
+        console.error('Tech tools list not found');
+        return;
+    }
     
-    const techTools = businessCardData.tech_tools
-        .filter(tool => tool.is_active)
-        .map((tool, index) => ({
+    const toolItems = techToolsList.querySelectorAll('.tech-tool-item');
+    const selectedToolTypes = [];
+    
+    toolItems.forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox && checkbox.checked) {
+            selectedToolTypes.push(item.dataset.toolType);
+        }
+    });
+    
+    if (selectedToolTypes.length < 2) {
+        alert('最低2つ以上のテックツールを選択してください');
+        return;
+    }
+    
+    try {
+        // Step 1: Generate URLs for selected tools
+        const urlResponse = await fetch('../backend/api/tech-tools/generate-urls.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selected_tools: selectedToolTypes }),
+            credentials: 'include'
+        });
+        
+        const urlResult = await urlResponse.json();
+        if (!urlResult.success) {
+            alert('URL生成に失敗しました: ' + urlResult.message);
+            return;
+        }
+        
+        // Step 2: Format tech tools for database
+        const techTools = urlResult.data.tech_tools.map((tool, index) => ({
             tool_type: tool.tool_type,
-            tool_url: tool.tool_url || '',
+            tool_url: tool.tool_url,
             display_order: index,
             is_active: 1
         }));
-    
-    try {
-        const response = await fetch('../backend/api/business-card/update.php', {
+        
+        console.log('Saving tech tools:', techTools);
+        
+        // Step 3: Save to database
+        const saveResponse = await fetch('../backend/api/business-card/update.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -504,12 +554,13 @@ async function saveTechTools() {
             credentials: 'include'
         });
         
-        const result = await response.json();
+        const saveResult = await saveResponse.json();
         
-        if (result.success) {
+        if (saveResult.success) {
+            alert('保存しました');
             loadBusinessCardData(); // Reload data
         } else {
-            alert('保存に失敗しました: ' + result.message);
+            alert('保存に失敗しました: ' + saveResult.message);
         }
     } catch (error) {
         console.error('Error:', error);

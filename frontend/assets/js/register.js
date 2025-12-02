@@ -398,7 +398,7 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
 });
 
 // Step 4: Tech Tools Selection
-document.getElementById('tech-tools-form')?.addEventListener('submit', (e) => {
+document.getElementById('tech-tools-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const selectedTools = Array.from(document.querySelectorAll('input[name="tech_tools[]"]:checked'))
@@ -414,16 +414,17 @@ document.getElementById('tech-tools-form')?.addEventListener('submit', (e) => {
     sessionStorage.setItem('registerData', JSON.stringify(formData));
     sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
-    // Generate tech tool URLs
-    generateTechToolUrls(selectedTools);
+    // Generate tech tool URLs and save to database
+    await generateTechToolUrls(selectedTools);
     
     goToStep(5);
 });
 
-// Generate Tech Tool URLs
+// Generate Tech Tool URLs and save to database
 async function generateTechToolUrls(selectedTools) {
     try {
-        const response = await fetch('../backend/api/tech-tools/generate-urls.php', {
+        // Step 1: Generate URLs
+        const urlResponse = await fetch('../backend/api/tech-tools/generate-urls.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -432,13 +433,41 @@ async function generateTechToolUrls(selectedTools) {
             credentials: 'include'
         });
         
-        const result = await response.json();
-        if (result.success) {
-            formData.tech_tool_urls = result.data.tech_tools;
-            sessionStorage.setItem('registerData', JSON.stringify(formData));
+        const urlResult = await urlResponse.json();
+        if (!urlResult.success) {
+            console.error('Failed to generate URLs:', urlResult.message);
+            return;
+        }
+        
+        // Step 2: Format tech tools for database
+        const techToolsForDB = urlResult.data.tech_tools.map((tool, index) => ({
+            tool_type: tool.tool_type,
+            tool_url: tool.tool_url,
+            display_order: index,
+            is_active: 1
+        }));
+        
+        formData.tech_tool_urls = urlResult.data.tech_tools;
+        sessionStorage.setItem('registerData', JSON.stringify(formData));
+        
+        // Step 3: Save to database
+        const saveResponse = await fetch('../backend/api/business-card/update.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tech_tools: techToolsForDB }),
+            credentials: 'include'
+        });
+        
+        const saveResult = await saveResponse.json();
+        if (saveResult.success) {
+            console.log('Tech tools saved to database successfully');
+        } else {
+            console.error('Failed to save tech tools:', saveResult.message);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error generating/saving tech tools:', error);
     }
 }
 
