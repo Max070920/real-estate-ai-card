@@ -4,6 +4,7 @@
 
 let currentStep = 1;
 let formData = {};
+let completedSteps = new Set(); // Track which steps have been submitted
 
 // Step navigation
 function goToStep(step) {
@@ -229,7 +230,9 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
     data.greetings = greetings;
     
     formData = { ...formData, ...data };
+    completedSteps.add(1); // Mark step 1 as completed
     sessionStorage.setItem('registerData', JSON.stringify(formData));
+    sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
     // Update business card
     try {
@@ -268,7 +271,9 @@ document.getElementById('company-profile-form')?.addEventListener('submit', asyn
     }
     
     formData = { ...formData, ...data };
+    completedSteps.add(2); // Mark step 2 as completed
     sessionStorage.setItem('registerData', JSON.stringify(formData));
+    sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
     // Update business card
     try {
@@ -299,6 +304,16 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
     
     const formDataObj = new FormData(e.target);
     const data = Object.fromEntries(formDataObj);
+    
+    // Combine last_name and first_name into name
+    const lastName = data.last_name || '';
+    const firstName = data.first_name || '';
+    data.name = (lastName + ' ' + firstName).trim();
+    
+    // Combine romaji names
+    const lastNameRomaji = data.last_name_romaji || '';
+    const firstNameRomaji = data.first_name_romaji || '';
+    data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
     
     // Handle qualifications checkboxes
     const qualifications = [];
@@ -355,7 +370,9 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
     delete data.free_image_link;
     
     formData = { ...formData, ...data };
+    completedSteps.add(3); // Mark step 3 as completed
     sessionStorage.setItem('registerData', JSON.stringify(formData));
+    sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
     // Update business card
     try {
@@ -393,7 +410,9 @@ document.getElementById('tech-tools-form')?.addEventListener('submit', (e) => {
     }
     
     formData.tech_tools = selectedTools;
+    completedSteps.add(4); // Mark step 4 as completed
     sessionStorage.setItem('registerData', JSON.stringify(formData));
+    sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
     // Generate tech tool URLs
     generateTechToolUrls(selectedTools);
@@ -484,7 +503,9 @@ document.getElementById('communication-form')?.addEventListener('submit', async 
     };
     
     formData = { ...formData, ...data };
+    completedSteps.add(5); // Mark step 5 as completed
     sessionStorage.setItem('registerData', JSON.stringify(formData));
+    sessionStorage.setItem('completedSteps', JSON.stringify(Array.from(completedSteps)));
     
     // Update business card
     try {
@@ -564,222 +585,276 @@ let storedFormData = {};
 
 // Collect all form data
 function collectFormData() {
-    const data = {};
+    // Start with stored data from sessionStorage (only contains submitted data)
+    const storedData = sessionStorage.getItem('registerData');
+    const data = storedData ? JSON.parse(storedData) : {};
     
-    // Step 1: Account info
-    const step1Form = document.getElementById('register-form');
-    if (step1Form) {
-        const formData = new FormData(step1Form);
-        data.email = formData.get('email') || '';
-        data.phone_number = formData.get('phone_number') || '';
-    }
+    // Only read from form fields for steps that have been completed
+    // This prevents showing default values from forms that haven't been submitted yet
     
-    // Step 2: Header & Greeting
-    const step2Form = document.getElementById('header-greeting-form');
-    if (step2Form) {
-        const formData = new FormData(step2Form);
-        data.company_name = formData.get('company_name') || '';
-        
-        // Logo
-        const logoInput = document.getElementById('company_logo');
-        if (logoInput && logoInput.files[0]) {
-            data.company_logo = URL.createObjectURL(logoInput.files[0]);
-        } else {
-            const logoPreview = document.querySelector('#logo-upload .upload-preview img');
-            if (logoPreview) data.company_logo = logoPreview.src;
-        }
-        
-        // Profile photo
-        const photoInput = document.getElementById('profile_photo_header');
-        if (photoInput && photoInput.files[0]) {
-            data.profile_photo = URL.createObjectURL(photoInput.files[0]);
-        } else {
-            const photoPreview = document.querySelector('#photo-upload-header .upload-preview img');
-            if (photoPreview) data.profile_photo = photoPreview.src;
-        }
-        
-        // Greetings
-        data.greetings = [];
-        const greetingTitles = formData.getAll('greeting_title[]');
-        const greetingContents = formData.getAll('greeting_content[]');
-        greetingTitles.forEach((title, index) => {
-            if (title && greetingContents[index]) {
-                data.greetings.push({
-                    title: title,
-                    content: greetingContents[index]
-                });
+    // Step 1: Header & Greeting (Step 1 in the current flow)
+    if (completedSteps.has(1)) {
+        const step1Form = document.getElementById('header-greeting-form');
+        if (step1Form) {
+            const formData = new FormData(step1Form);
+            if (formData.get('company_name')) {
+                data.company_name = formData.get('company_name');
             }
-        });
-    }
-    
-    // Step 3: Company Profile
-    const step3Form = document.getElementById('company-profile-form');
-    if (step3Form) {
-        const formData = new FormData(step3Form);
-        data.company_name_profile = formData.get('company_name_profile') || '';
-        data.company_postal_code = formData.get('company_postal_code') || '';
-        data.company_address = formData.get('company_address') || '';
-        data.company_phone = formData.get('company_phone') || '';
-        data.company_website = formData.get('company_website') || '';
-        data.real_estate_license_prefecture = formData.get('real_estate_license_prefecture') || '';
-        data.real_estate_license_renewal_number = formData.get('real_estate_license_renewal_number') || '';
-        data.real_estate_license_registration_number = formData.get('real_estate_license_registration_number') || '';
-    }
-    
-    // Step 4: Personal Info
-    const step4Form = document.getElementById('personal-info-form');
-    if (step4Form) {
-        const formData = new FormData(step4Form);
-        // Combine last_name and first_name
-        const lastName = formData.get('last_name') || '';
-        const firstName = formData.get('first_name') || '';
-        data.name = (lastName + ' ' + firstName).trim();
-        // Combine romaji names
-        const lastNameRomaji = formData.get('last_name_romaji') || '';
-        const firstNameRomaji = formData.get('first_name_romaji') || '';
-        data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
-        data.branch_department = formData.get('branch_department') || '';
-        data.position = formData.get('position') || '';
-        data.mobile_phone = formData.get('mobile_phone') || '';
-        data.birth_date = formData.get('birth_date') || '';
-        data.current_residence = formData.get('current_residence') || '';
-        data.hometown = formData.get('hometown') || '';
-        data.alma_mater = formData.get('alma_mater') || '';
-        data.hobbies = formData.get('hobbies') || '';
-        data.free_input_text = formData.get('free_input_text') || '';
-        data.free_image_link = formData.get('free_image_link') || '';
-        
-        // Qualifications
-        const qualifications = [];
-        if (formData.get('qualification_takken')) qualifications.push('宅地建物取引士');
-        if (formData.get('qualification_kenchikushi')) qualifications.push('建築士');
-        const otherQuals = formData.get('qualifications_other');
-        if (otherQuals) qualifications.push(otherQuals);
-        data.qualifications = qualifications.join('、');
-        
-        // Free image
-        const freeImageInput = document.getElementById('free_image');
-        if (freeImageInput && freeImageInput.files[0]) {
-            data.free_image = URL.createObjectURL(freeImageInput.files[0]);
-        } else {
-            const freeImagePreview = document.querySelector('#free-image-upload .upload-preview img');
-            if (freeImagePreview) data.free_image = freeImagePreview.src;
+            
+            // Logo
+            const logoInput = document.getElementById('company_logo');
+            if (logoInput && logoInput.files[0]) {
+                data.company_logo = URL.createObjectURL(logoInput.files[0]);
+            } else {
+                const logoPreview = document.querySelector('#logo-upload .upload-preview img');
+                if (logoPreview) data.company_logo = logoPreview.src;
+            }
+            
+            // Profile photo
+            const photoInput = document.getElementById('profile_photo_header');
+            if (photoInput && photoInput.files[0]) {
+                data.profile_photo = URL.createObjectURL(photoInput.files[0]);
+            } else {
+                const photoPreview = document.querySelector('#photo-upload-header .upload-preview img');
+                if (photoPreview) data.profile_photo = photoPreview.src;
+            }
+            
+            // Greetings
+            data.greetings = [];
+            const greetingTitles = formData.getAll('greeting_title[]');
+            const greetingContents = formData.getAll('greeting_content[]');
+            greetingTitles.forEach((title, index) => {
+                if (title && greetingContents[index]) {
+                    data.greetings.push({
+                        title: title,
+                        content: greetingContents[index]
+                    });
+                }
+            });
         }
     }
     
-    // Step 5: Tech Tools
-    const step5Form = document.getElementById('tech-tools-form');
-    if (step5Form) {
-        const formData = new FormData(step5Form);
-        data.tech_tools = formData.getAll('tech_tools[]') || [];
+    // Step 2: Company Profile
+    if (completedSteps.has(2)) {
+        const step2Form = document.getElementById('company-profile-form');
+        if (step2Form) {
+            const formData = new FormData(step2Form);
+            if (formData.get('company_name_profile')) {
+                data.company_name_profile = formData.get('company_name_profile');
+            }
+            if (formData.get('company_postal_code')) {
+                data.company_postal_code = formData.get('company_postal_code');
+            }
+            if (formData.get('company_address')) {
+                data.company_address = formData.get('company_address');
+            }
+            if (formData.get('company_phone')) {
+                data.company_phone = formData.get('company_phone');
+            }
+            if (formData.get('company_website')) {
+                data.company_website = formData.get('company_website');
+            }
+            if (formData.get('real_estate_license_prefecture')) {
+                data.real_estate_license_prefecture = formData.get('real_estate_license_prefecture');
+            }
+            if (formData.get('real_estate_license_renewal_number')) {
+                data.real_estate_license_renewal_number = formData.get('real_estate_license_renewal_number');
+            }
+            if (formData.get('real_estate_license_registration_number')) {
+                data.real_estate_license_registration_number = formData.get('real_estate_license_registration_number');
+            }
+        }
     }
     
-    // Step 6: Communication
-    const step6Form = document.getElementById('communication-form');
-    if (step6Form) {
-        const formData = new FormData(step6Form);
-        data.communication = {};
-        
-        // Message apps
-        if (formData.get('comm_line')) {
-            data.communication.line = {
-                name: 'LINE',
-                id: formData.get('comm_line_id') || '',
-                icon: '<img src="assets/images/icons/line.png" alt="LINE">'
-            };
+    // Step 3: Personal Info
+    if (completedSteps.has(3)) {
+        const step3Form = document.getElementById('personal-info-form');
+        if (step3Form) {
+            const formData = new FormData(step3Form);
+            // Combine last_name and first_name
+            const lastName = formData.get('last_name') || '';
+            const firstName = formData.get('first_name') || '';
+            if (lastName || firstName) {
+                data.name = (lastName + ' ' + firstName).trim();
+            }
+            // Combine romaji names
+            const lastNameRomaji = formData.get('last_name_romaji') || '';
+            const firstNameRomaji = formData.get('first_name_romaji') || '';
+            if (lastNameRomaji || firstNameRomaji) {
+                data.name_romaji = (lastNameRomaji + ' ' + firstNameRomaji).trim();
+            }
+            if (formData.get('branch_department')) {
+                data.branch_department = formData.get('branch_department');
+            }
+            if (formData.get('position')) {
+                data.position = formData.get('position');
+            }
+            if (formData.get('mobile_phone')) {
+                data.mobile_phone = formData.get('mobile_phone');
+            }
+            if (formData.get('birth_date')) {
+                data.birth_date = formData.get('birth_date');
+            }
+            if (formData.get('current_residence')) {
+                data.current_residence = formData.get('current_residence');
+            }
+            if (formData.get('hometown')) {
+                data.hometown = formData.get('hometown');
+            }
+            if (formData.get('alma_mater')) {
+                data.alma_mater = formData.get('alma_mater');
+            }
+            if (formData.get('hobbies')) {
+                data.hobbies = formData.get('hobbies');
+            }
+            if (formData.get('free_input_text')) {
+                data.free_input_text = formData.get('free_input_text');
+            }
+            if (formData.get('free_image_link')) {
+                data.free_image_link = formData.get('free_image_link');
+            }
+            
+            // Qualifications
+            const qualifications = [];
+            if (formData.get('qualification_takken')) qualifications.push('宅地建物取引士');
+            if (formData.get('qualification_kenchikushi')) qualifications.push('建築士');
+            const otherQuals = formData.get('qualifications_other');
+            if (otherQuals) qualifications.push(otherQuals);
+            if (qualifications.length > 0) {
+                data.qualifications = qualifications.join('、');
+            }
+            
+            // Free image
+            const freeImageInput = document.getElementById('free_image');
+            if (freeImageInput && freeImageInput.files[0]) {
+                data.free_image = URL.createObjectURL(freeImageInput.files[0]);
+            } else {
+                const freeImagePreview = document.querySelector('#free-image-upload .upload-preview img');
+                if (freeImagePreview) data.free_image = freeImagePreview.src;
+            }
         }
-        if (formData.get('comm_plus_message')) {
-            data.communication.plus_message = {
-                name: '+メッセージ',
-                id: formData.get('comm_plus_message_id') || '',
-                icon: '<img src="assets/images/icons/message.png" alt="+メッセージ">'
-            };
+    }
+    
+    // Step 4: Tech Tools
+    if (completedSteps.has(4)) {
+        const step4Form = document.getElementById('tech-tools-form');
+        if (step4Form) {
+            const formData = new FormData(step4Form);
+            const selectedTools = formData.getAll('tech_tools[]');
+            if (selectedTools.length > 0) {
+                data.tech_tools = selectedTools;
+            }
         }
-        if (formData.get('comm_andpad')) {
-            data.communication.andpad = {
-                name: 'Andpad',
-                id: formData.get('comm_andpad_id') || '',
-                icon: '<img src="assets/images/icons/andpad.png" alt="Andpad">'
-            };
-        }
-        if (formData.get('comm_messenger')) {
-            data.communication.messenger = {
-                name: 'Messenger',
-                id: formData.get('comm_messenger_id') || '',
-                icon: '<img src="assets/images/icons/messenger.png" alt="Messenger">'
-            };
-        }
-        if (formData.get('comm_whatsapp')) {
-            data.communication.whatsapp = {
-                name: 'WhatsApp',
-                id: formData.get('comm_whatsapp_id') || '',
-                icon: '<img src="assets/images/icons/whatsapp.png" alt="WhatsApp">'
-            };
-        }
-        if (formData.get('comm_chatwork')) {
-            data.communication.chatwork = {
-                name: 'Chatwork',
-                id: formData.get('comm_chatwork_id') || '',
-                icon: '<img src="assets/images/icons/chatwork.png" alt="Chatwork">'
-            };
-        }
-        
-        // SNS
-        if (formData.get('comm_instagram')) {
-            data.communication.instagram = {
-                name: 'Instagram',
-                url: formData.get('comm_instagram_url') || '',
-                icon: '<img src="assets/images/icons/instagram.png" alt="Instagram">'
-            };
-        }
-        if (formData.get('comm_facebook')) {
-            data.communication.facebook = {
-                name: 'Facebook',
-                url: formData.get('comm_facebook_url') || '',
-                icon: '<img src="assets/images/icons/facebook.png" alt="Facebook">'
-            };
-        }
-        if (formData.get('comm_twitter')) {
-            data.communication.twitter = {
-                name: 'X (Twitter)',
-                url: formData.get('comm_twitter_url') || '',
-                icon: '<img src="assets/images/icons/twitter.png" alt="X (Twitter)">'
-            };
-        }
-        if (formData.get('comm_youtube')) {
-            data.communication.youtube = {
-                name: 'YouTube',
-                url: formData.get('comm_youtube_url') || '',
-                icon: '<img src="assets/images/icons/youtube.png" alt="YouTube">'
-            };
-        }
-        if (formData.get('comm_tiktok')) {
-            data.communication.tiktok = {
-                name: 'TikTok',
-                url: formData.get('comm_tiktok_url') || '',
-                icon: '<img src="assets/images/icons/tiktok.png" alt="TikTok">'
-            };
-        }
-        if (formData.get('comm_note')) {
-            data.communication.note = {
-                name: 'note',
-                url: formData.get('comm_note_url') || '',
-                icon: '<img src="assets/images/icons/note.png" alt="note">'
-            };
-        }
-        if (formData.get('comm_pinterest')) {
-            data.communication.pinterest = {
-                name: 'Pinterest',
-                url: formData.get('comm_pinterest_url') || '',
-                icon: '<img src="assets/images/icons/pinterest.png" alt="Pinterest">'
-            };
-        }
-        if (formData.get('comm_threads')) {
-            data.communication.threads = {
-                name: 'Threads',
-                url: formData.get('comm_threads_url') || '',
-                icon: '<img src="assets/images/icons/threads.png" alt="Threads">'
-            };
+    }
+    
+    // Step 5: Communication
+    if (completedSteps.has(5)) {
+        const step5Form = document.getElementById('communication-form');
+        if (step5Form) {
+            const formData = new FormData(step5Form);
+            data.communication = {};
+            
+            // Message apps
+            if (formData.get('comm_line')) {
+                data.communication.line = {
+                    name: 'LINE',
+                    id: formData.get('comm_line_id') || '',
+                    icon: '<img src="assets/images/icons/line.png" alt="LINE">'
+                };
+            }
+            if (formData.get('comm_plus_message')) {
+                data.communication.plus_message = {
+                    name: '+メッセージ',
+                    id: formData.get('comm_plus_message_id') || '',
+                    icon: '<img src="assets/images/icons/message.png" alt="+メッセージ">'
+                };
+            }
+            if (formData.get('comm_andpad')) {
+                data.communication.andpad = {
+                    name: 'Andpad',
+                    id: formData.get('comm_andpad_id') || '',
+                    icon: '<img src="assets/images/icons/andpad.png" alt="Andpad">'
+                };
+            }
+            if (formData.get('comm_messenger')) {
+                data.communication.messenger = {
+                    name: 'Messenger',
+                    id: formData.get('comm_messenger_id') || '',
+                    icon: '<img src="assets/images/icons/messenger.png" alt="Messenger">'
+                };
+            }
+            if (formData.get('comm_whatsapp')) {
+                data.communication.whatsapp = {
+                    name: 'WhatsApp',
+                    id: formData.get('comm_whatsapp_id') || '',
+                    icon: '<img src="assets/images/icons/whatsapp.png" alt="WhatsApp">'
+                };
+            }
+            if (formData.get('comm_chatwork')) {
+                data.communication.chatwork = {
+                    name: 'Chatwork',
+                    id: formData.get('comm_chatwork_id') || '',
+                    icon: '<img src="assets/images/icons/chatwork.png" alt="Chatwork">'
+                };
+            }
+            
+            // SNS
+            if (formData.get('comm_instagram')) {
+                data.communication.instagram = {
+                    name: 'Instagram',
+                    url: formData.get('comm_instagram_url') || '',
+                    icon: '<img src="assets/images/icons/instagram.png" alt="Instagram">'
+                };
+            }
+            if (formData.get('comm_facebook')) {
+                data.communication.facebook = {
+                    name: 'Facebook',
+                    url: formData.get('comm_facebook_url') || '',
+                    icon: '<img src="assets/images/icons/facebook.png" alt="Facebook">'
+                };
+            }
+            if (formData.get('comm_twitter')) {
+                data.communication.twitter = {
+                    name: 'X (Twitter)',
+                    url: formData.get('comm_twitter_url') || '',
+                    icon: '<img src="assets/images/icons/twitter.png" alt="X (Twitter)">'
+                };
+            }
+            if (formData.get('comm_youtube')) {
+                data.communication.youtube = {
+                    name: 'YouTube',
+                    url: formData.get('comm_youtube_url') || '',
+                    icon: '<img src="assets/images/icons/youtube.png" alt="YouTube">'
+                };
+            }
+            if (formData.get('comm_tiktok')) {
+                data.communication.tiktok = {
+                    name: 'TikTok',
+                    url: formData.get('comm_tiktok_url') || '',
+                    icon: '<img src="assets/images/icons/tiktok.png" alt="TikTok">'
+                };
+            }
+            if (formData.get('comm_note')) {
+                data.communication.note = {
+                    name: 'note',
+                    url: formData.get('comm_note_url') || '',
+                    icon: '<img src="assets/images/icons/note.png" alt="note">'
+                };
+            }
+            if (formData.get('comm_pinterest')) {
+                data.communication.pinterest = {
+                    name: 'Pinterest',
+                    url: formData.get('comm_pinterest_url') || '',
+                    icon: '<img src="assets/images/icons/pinterest.png" alt="Pinterest">'
+                };
+            }
+            if (formData.get('comm_threads')) {
+                data.communication.threads = {
+                    name: 'Threads',
+                    url: formData.get('comm_threads_url') || '',
+                    icon: '<img src="assets/images/icons/threads.png" alt="Threads">'
+                };
+            }
         }
     }
     
@@ -1067,6 +1142,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedData = sessionStorage.getItem('registerData');
     if (savedData) {
         formData = JSON.parse(savedData);
+    }
+    
+    // Load completed steps
+    const savedCompletedSteps = sessionStorage.getItem('completedSteps');
+    if (savedCompletedSteps) {
+        completedSteps = new Set(JSON.parse(savedCompletedSteps));
     }
     
     // Initialize greeting buttons
