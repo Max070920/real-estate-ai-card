@@ -31,6 +31,7 @@ try {
     
     $stmt->execute([$userId]);
     $businessCard = $stmt->fetch();
+    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
     if (!$businessCard) {
         sendErrorResponse('ビジネスカードが見つかりません', 404);
@@ -49,7 +50,7 @@ try {
 
     // テックツール取得
     $stmt = $db->prepare("
-        SELECT id, tool_type, tool_name, tool_url, display_order, is_active
+        SELECT id, tool_type, tool_url, display_order, is_active
         FROM tech_tool_selections
         WHERE business_card_id = ?
         ORDER BY display_order ASC
@@ -80,5 +81,6 @@ try {
 } catch (Exception $e) {
     error_log("Get Business Card Error: " . $e->getMessage());
     sendErrorResponse('サーバーエラーが発生しました', 500);
+    
 }
 

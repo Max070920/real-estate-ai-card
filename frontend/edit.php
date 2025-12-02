@@ -149,7 +149,7 @@ $userId = $_SESSION['user_id'];
         document.addEventListener('DOMContentLoaded', function() {
             const basicForm = document.getElementById('basic-form');
             if (basicForm) {
-                basicForm.addEventListener('submit', function(e) {
+                basicForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const formData = new FormData(basicForm);
@@ -176,61 +176,41 @@ $userId = $_SESSION['user_id'];
                     delete data.last_name_romaji;
                     delete data.first_name_romaji;
                     
+                    // ロゴとプロフィール写真のパスを追加（既にアップロード済みの場合）
+                    if (window.businessCardData) {
+                        if (window.businessCardData.company_logo && !data.company_logo) {
+                            data.company_logo = window.businessCardData.company_logo;
+                        }
+                        if (window.businessCardData.profile_photo && !data.profile_photo) {
+                            data.profile_photo = window.businessCardData.profile_photo;
+                        }
+                    }
+                    
                     // APIに送信
-                    fetch('../backend/api/business-card/update.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data),
-                        credentials: 'include'
-                    })
-                    .then(response => response.json())
-                    .then(result => {
+                    try {
+                        const response = await fetch('../backend/api/business-card/update.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                            credentials: 'include'
+                        });
+                        
+                        const result = await response.json();
+                        
                         if (result.success) {
                             alert('保存しました');
-                            // 必要に応じてページをリロード
-                            location.reload();
+                            // データを再読み込み
+                            loadBusinessCardData();
                         } else {
                             alert('保存に失敗しました: ' + result.message);
                         }
-                    })
-                    .catch(error => {
+                    } catch (error) {
                         console.error('Error:', error);
                         alert('エラーが発生しました');
-                    });
+                    }
                 });
-            }
-            
-            // データ読み込み時にnameを分割
-            // 既存のedit.jsがデータを読み込む場合は、その処理を上書き
-            if (typeof loadBusinessCardData === 'function') {
-                const originalLoad = loadBusinessCardData;
-                loadBusinessCardData = function(data) {
-                    originalLoad(data);
-                    
-                    // nameを姓と名に分割
-                    if (data.name) {
-                        const nameParts = data.name.trim().split(/\s+/);
-                        if (nameParts.length >= 2) {
-                            document.getElementById('edit_last_name').value = nameParts[0];
-                            document.getElementById('edit_first_name').value = nameParts.slice(1).join(' ');
-                        } else {
-                            document.getElementById('edit_last_name').value = data.name;
-                        }
-                    }
-                    
-                    // name_romajiを姓と名に分割
-                    if (data.name_romaji) {
-                        const romajiParts = data.name_romaji.trim().split(/\s+/);
-                        if (romajiParts.length >= 2) {
-                            document.getElementById('edit_last_name_romaji').value = romajiParts[0];
-                            document.getElementById('edit_first_name_romaji').value = romajiParts.slice(1).join(' ');
-                        } else {
-                            document.getElementById('edit_last_name_romaji').value = data.name_romaji;
-                        }
-                    }
-                };
             }
         });
         

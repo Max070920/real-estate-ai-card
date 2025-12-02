@@ -24,7 +24,7 @@ ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 0); // HTTPS使用時は1に変更
 
 // ベースURL
-define('BASE_URL', 'http://localhost/php');
+define('BASE_URL', 'http://103.179.45.108/php');
 define('API_BASE_URL', BASE_URL . '/backend/api');
 
 // ファイルアップロード設定
