@@ -129,6 +129,9 @@ startSessionIfNotStarted();
                 <a href="new_register.php">アカウントをお持ちでない方はこちら</a>
             </div>
             <div class="login-link" style="margin-top: 0.5rem;">
+                <a href="auth/forgot-password.php">パスワードをお忘れですか？</a>
+            </div>
+            <div class="login-link" style="margin-top: 0.5rem;">
                 <a href="#" id="resend-verification-link" style="font-size: 0.9rem; display: none;">認証メールを再送信する</a>
             </div>
             <div id="error-message" style="color: red; margin-top: 1rem; display: none;"></div>

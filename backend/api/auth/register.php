@@ -82,17 +82,47 @@ try {
     // 🔹 URLは必ずドメイン + HTTPS（IP NG）
     $verificationLink = "http://103.179.45.108/php/frontend/auth/verify.php?token=" . urlencode($verificationToken);
 
-    // 件名（短くシンプル → スパム回避）
-    $emailSubject = "メール認証のお願い";
+    // 件名
+    $emailSubject = '【不動産AI名刺】メール認証のお願い';
 
-    // HTML本文（シンプル → スパム回避）
+    // HTML本文
     $emailBodyHtml = "
-<p>不動産AI名刺へのご登録ありがとうございます。</p>
-<p>下記リンクをクリックしてメール認証を完了してください：</p>
-<p><a href='$verificationLink'>$verificationLink</a></p>
-<p>※ このリンクは15分間有効です。期限を過ぎた場合は、再度メール認証をリクエストしてください。</p>
-<p>このメールに覚えがない場合は破棄してください。</p>
-";
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #0066cc; color: #fff; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .button { display: inline-block; padding: 12px 30px; background: #0066cc; color: #fff; text-decoration: none; border-radius: 4px; margin: 20px 0; }
+            .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>不動産AI名刺</h1>
+            </div>
+            <div class='content'>
+                <p>不動産AI名刺へのご登録ありがとうございます。</p>
+                <p>メール認証を完了するため、以下のリンクをクリックしてください。</p>
+                <p style='text-align: center;'>
+                    <a href='{$verificationLink}' style='color: #fff;' class='button'>メール認証を完了する</a>
+                </p>
+                <p>もし上記のボタンがクリックできない場合は、以下のURLをコピーしてブラウザのアドレスバーに貼り付けてください。</p>
+                <p style='word-break: break-all; background: #fff; padding: 10px; border-radius: 4px; font-size: 12px;'>{$verificationLink}</p>
+                <p><strong>※このリンクは15分間有効です。期限を過ぎた場合は、再度メール認証をリクエストしてください。</strong></p>
+                <p>このメールに心当たりがない場合は、このメールを無視してください。</p>
+                <div class='footer'>
+                    <p>このメールは自動送信されています。返信はできません。</p>
+                    <p>© " . date('Y') . " 不動産AI名刺 All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
 
     // プレーンテキスト（必須）
     $emailBodyText =
