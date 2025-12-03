@@ -57,21 +57,14 @@ try {
     // トークン生成
     $verificationToken = generateToken(32);
 
-    // パスワードハッシュ化
+    // パスワードハッシュ
     $passwordHash = hashPassword($input['password']);
-
-    // 既存ユーザーの場合、既存URLをチェック
-    $existingUrl = null;
-    if ($input['user_type'] === 'existing' && !empty($input['existing_url'])) {
-        $existingUrl = sanitizeInput($input['existing_url']);
-    }
 
     // ユーザー登録
     $stmt = $db->prepare("
-        INSERT INTO users (email, password_hash, phone_number, user_type, verification_token, status)
-        VALUES (?, ?, ?, ?, ?, 'pending')
-    ");
-
+    INSERT INTO users (email, password_hash, phone_number, user_type, verification_token, status)
+    VALUES (?, ?, ?, ?, ?, 'pending')
+");
     $stmt->execute([
         $input['email'],
         $passwordHash,
@@ -82,69 +75,35 @@ try {
 
     $userId = $db->lastInsertId();
 
-    // メール認証リンク (URLエンコード)
-    $verificationLink = BASE_URL . "/frontend/auth/verify.php?token=" . urlencode($verificationToken);
+    // 🔹 URLは必ずドメイン + HTTPS（IP NG）
+    $verificationLink = "http://103.179.45.108/php/frontend/auth/verify.php?token=" . urlencode($verificationToken);
 
-    // 件名
-    $emailSubject = "【不動産AI名刺】メール認証のお願い";
+    // 件名（短くシンプル → スパム回避）
+    $emailSubject = "メール認証のお願い";
 
-    // HTMLメール本文（インラインCSS優先）
-    $emailBodyHtml = '
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark">
-<title>メール認証</title>
-</head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:\'Hiragino Sans\',\'Meiryo\',sans-serif;line-height:1.7;">
-<table width="100%" cellpadding="0" cellspacing="0">
-<tr><td align="center" style="padding:20px;">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;">
-<tr>
-<td align="center" style="background:#0066cc;padding:20px;">
-<h1 style="margin:0;color:#ffffff;font-size:22px;">不動産AI名刺</h1>
-</td>
-</tr>
-<tr>
-<td style="padding:30px;color:#333;font-size:15px;">
-<p>この度は、不動産AI名刺にご登録いただき、誠にありがとうございます。</p>
-<p>メール認証を完了するため、下記ボタンをクリックしてください。</p>
-<p style="text-align:center;margin:25px 0;">
-<a href="' . $verificationLink . '" 
-style="display:inline-block;padding:14px 28px;background:#0066cc;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;">
-メール認証を完了する
-</a>
-</p>
-<p>もしクリックできない場合は、以下のURLをコピーしてブラウザに貼り付けてください：</p>
-<p style="word-break:break-all;background:#fafafa;padding:12px;border-radius:6px;font-size:12px;border:1px solid #e5e5e5;">' . $verificationLink . '</p>
-<p><strong>※このリンクは24時間有効です。</strong></p>
+    // HTML本文（シンプル → スパム回避）
+    $emailBodyHtml = "
+<p>不動産AI名刺へのご登録ありがとうございます。</p>
+<p>下記リンクをクリックしてメール認証を完了してください：</p>
+<p><a href='$verificationLink'>$verificationLink</a></p>
+<p>※ このリンクは24時間有効です。</p>
 <p>このメールに覚えがない場合は破棄してください。</p>
-<hr style="border:none;border-top:1px solid #e5e5e5;margin:30px 0;">
-<p style="font-size:11px;color:#777;">このメールは自動送信されています。返信はできません。</p>
-<p style="font-size:11px;color:#777;">© ' . date("Y") . ' 不動産AI名刺 All rights reserved.</p>
-</td>
-</tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>
-';
+";
 
-    // プレーンテキスト版（スパム対策）
-    $emailBodyText = "不動産AI名刺へご登録ありがとうございます。\n\n" .
+    // プレーンテキスト（必須）
+    $emailBodyText =
+        "不動産AI名刺へのご登録ありがとうございます。\n\n" .
         "以下のリンクをクリックしてメール認証を完了してください（24時間有効）：\n" .
-        $verificationLink . "\n\n" .
-        "心当たりがない場合は破棄してください。\n";
+        "$verificationLink\n\n" .
+        "このメールに覚えがない場合は破棄してください。\n";
 
-    // メール送信（プレーンテキスト＋HTML）
+    // 送信
     $emailSent = sendEmail($input['email'], $emailSubject, $emailBodyHtml, $emailBodyText);
 
     if (!$emailSent) {
         error_log("[Email Error] Verification email send failed: " . $input['email']);
     }
+
 
 
     // 既存ユーザーの場合、ビジネスカードのURLスラッグを設定

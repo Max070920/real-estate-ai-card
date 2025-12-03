@@ -3,6 +3,15 @@
  * Common Utility Functions
  */
 
+// Load Composer autoloader for PHPMailer and other dependencies
+// require_once __DIR__ . '/../vendor/autoload.php';
+// require __DIR__ . '/../config/config.php';
+// require __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 /**
  * JSONレスポンスを送信
  */
@@ -298,27 +307,63 @@ function sanitizeInput($data) {
  * メール送信
  */
 function sendEmail($to, $subject, $htmlMessage, $textMessage = '') {
-    $fromEmail = "maxlucky0709@gmail.com";
-    $fromName = "不動産AI名刺";
-    $boundary = md5(uniqid());
+    $mail = new PHPMailer(true);
 
-    $headers = [];
-    $headers[] = "From: {$fromName} <{$fromEmail}>";
-    $headers[] = "Reply-To: {$fromEmail}";
-    $headers[] = "MIME-Version: 1.0";
-    $headers[] = "Content-Type: multipart/alternative; boundary=\"{$boundary}\"";
+    try {
+        // SMTP 設定
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'ctha43843@gmail.com'; // あなたのGmail
+        $mail->Password = 'lsdimxhugzdlhxla'; // Gmailアプリパスワード
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
 
-    $body = "--{$boundary}\r\n";
-    $body .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-    $body .= ($textMessage ?: strip_tags($htmlMessage)) . "\r\n\r\n";
+        // 送信者情報
+        $mail->setFrom('ctha43843@gmail.com', '不動産AI名刺');
+        $mail->addReplyTo('ctha43843@gmail.com');
 
-    $body .= "--{$boundary}\r\n";
-    $body .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
-    $body .= $htmlMessage . "\r\n\r\n";
-    $body .= "--{$boundary}--";
+        // 宛先
+        $mail->addAddress($to);
 
-    return mail($to, $subject, $body, implode("\r\n", $headers));
+        // メール内容
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'quoted-printable';
+        $mail->Subject = $subject;
+        $mail->Body    = $htmlMessage;
+        $mail->AltBody = $textMessage ?: strip_tags($htmlMessage);
+
+        return $mail->send();
+
+    } catch (Exception $e) {
+        error_log("[Email Error] {$mail->ErrorInfo}");
+        return false;
+    }
 }
+
+// function sendEmail($to, $subject, $htmlMessage, $textMessage = '') {
+//     $fromEmail = "ctha43843@gmail.com";
+//     $fromName = "不動産AI名刺";
+//     $boundary = md5(uniqid());
+
+//     $headers = [];
+//     $headers[] = "From: {$fromName} <{$fromEmail}>";
+//     $headers[] = "Reply-To: {$fromEmail}";
+//     $headers[] = "MIME-Version: 1.0";
+//     $headers[] = "Content-Type: multipart/alternative; boundary=\"{$boundary}\"";
+
+//     $body = "--{$boundary}\r\n";
+//     $body .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
+//     $body .= ($textMessage ?: strip_tags($htmlMessage)) . "\r\n\r\n";
+
+//     $body .= "--{$boundary}\r\n";
+//     $body .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
+//     $body .= $htmlMessage . "\r\n\r\n";
+//     $body .= "--{$boundary}--";
+
+//     return mail($to, $subject, $body, implode("\r\n", $headers));
+// }
 
 
 /**
