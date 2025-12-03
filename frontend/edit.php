@@ -23,6 +23,18 @@ $userId = $_SESSION['user_id'];
     <title>名刺編集 - 不動産AI名刺</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/edit.css">
+    <style>
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
 </head>
 <body>
     <?php 
@@ -35,7 +47,6 @@ $userId = $_SESSION['user_id'];
             <h1>デジタル名刺編集</h1>
             <a href="index.php" class="btn-back">ホームに戻る</a>
         </header>
-
         <div class="edit-content">
             <div class="edit-sidebar">
                 <nav class="edit-nav">
@@ -45,6 +56,12 @@ $userId = $_SESSION['user_id'];
                     <a href="#tech-tools" class="nav-item">テックツール</a>
                     <a href="#communication" class="nav-item">コミュニケーション</a>
                 </nav>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-direction: column; padding-inline: 10px;">
+                        <a href="auth/forgot-password.php" class="btn-secondary" style="text-align: center; padding: 0.75rem; text-decoration: none; display: inline-block; border-radius: 4px;">パスワードリセット</a>
+                        <a href="auth/reset-email.php" class="btn-secondary" style="text-align: center; padding: 0.75rem; text-decoration: none; display: inline-block; border-radius: 4px;">メールアドレスリセット</a>
+                    </div>
+                </div>
             </div>
 
             <div class="edit-main">
