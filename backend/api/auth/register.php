@@ -56,21 +56,25 @@ try {
 
     // トークン生成
     $verificationToken = generateToken(32);
+    
+    // トークンの有効期限を15分後に設定
+    $tokenExpiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
     // パスワードハッシュ
     $passwordHash = hashPassword($input['password']);
 
     // ユーザー登録
     $stmt = $db->prepare("
-    INSERT INTO users (email, password_hash, phone_number, user_type, verification_token, status)
-    VALUES (?, ?, ?, ?, ?, 'pending')
+    INSERT INTO users (email, password_hash, phone_number, user_type, verification_token, verification_token_expires_at, status)
+    VALUES (?, ?, ?, ?, ?, ?, 'pending')
 ");
     $stmt->execute([
         $input['email'],
         $passwordHash,
         $input['phone_number'],
         $input['user_type'],
-        $verificationToken
+        $verificationToken,
+        $tokenExpiresAt
     ]);
 
     $userId = $db->lastInsertId();
@@ -86,15 +90,16 @@ try {
 <p>不動産AI名刺へのご登録ありがとうございます。</p>
 <p>下記リンクをクリックしてメール認証を完了してください：</p>
 <p><a href='$verificationLink'>$verificationLink</a></p>
-<p>※ このリンクは24時間有効です。</p>
+<p>※ このリンクは15分間有効です。期限を過ぎた場合は、再度メール認証をリクエストしてください。</p>
 <p>このメールに覚えがない場合は破棄してください。</p>
 ";
 
     // プレーンテキスト（必須）
     $emailBodyText =
         "不動産AI名刺へのご登録ありがとうございます。\n\n" .
-        "以下のリンクをクリックしてメール認証を完了してください（24時間有効）：\n" .
+        "以下のリンクをクリックしてメール認証を完了してください（15分間有効）：\n" .
         "$verificationLink\n\n" .
+        "期限を過ぎた場合は、再度メール認証をリクエストしてください。\n\n" .
         "このメールに覚えがない場合は破棄してください。\n";
 
     // 送信

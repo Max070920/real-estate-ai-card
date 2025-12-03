@@ -342,30 +342,6 @@ function sendEmail($to, $subject, $htmlMessage, $textMessage = '') {
     }
 }
 
-// function sendEmail($to, $subject, $htmlMessage, $textMessage = '') {
-//     $fromEmail = "ctha43843@gmail.com";
-//     $fromName = "不動産AI名刺";
-//     $boundary = md5(uniqid());
-
-//     $headers = [];
-//     $headers[] = "From: {$fromName} <{$fromEmail}>";
-//     $headers[] = "Reply-To: {$fromEmail}";
-//     $headers[] = "MIME-Version: 1.0";
-//     $headers[] = "Content-Type: multipart/alternative; boundary=\"{$boundary}\"";
-
-//     $body = "--{$boundary}\r\n";
-//     $body .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-//     $body .= ($textMessage ?: strip_tags($htmlMessage)) . "\r\n\r\n";
-
-//     $body .= "--{$boundary}\r\n";
-//     $body .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
-//     $body .= $htmlMessage . "\r\n\r\n";
-//     $body .= "--{$boundary}--";
-
-//     return mail($to, $subject, $body, implode("\r\n", $headers));
-// }
-
-
 /**
  * バリデーション: メールアドレス
  */

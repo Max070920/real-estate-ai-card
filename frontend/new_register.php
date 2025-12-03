@@ -186,8 +186,7 @@ $userType = $_GET['type'] ?? 'new'; // new, existing, free
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Redirect to register.php to continue with remaining steps
-                    window.location.href = 'register.php';
+                    window.location.href = 'login.php';
                 } else {
                     alert(result.message || '登録に失敗しました');
                 }

@@ -50,9 +50,12 @@ try {
     $verificationToken = $user['verification_token'];
     if (empty($verificationToken)) {
         $verificationToken = generateToken(32);
-        $stmt = $db->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
-        $stmt->execute([$verificationToken, $user['id']]);
     }
+    
+    // トークンの有効期限を15分後に設定（再送信時も新しい期限を設定）
+    $tokenExpiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+    $stmt = $db->prepare("UPDATE users SET verification_token = ?, verification_token_expires_at = ? WHERE id = ?");
+    $stmt->execute([$verificationToken, $tokenExpiresAt, $user['id']]);
 
     // メール認証の送信
     $verificationLink = BASE_URL . "/frontend/auth/verify.php?token=" . $verificationToken;
@@ -81,11 +84,11 @@ try {
                 <p>メール認証の再送信リクエストを受け付けました。</p>
                 <p>メール認証を完了するため、以下のリンクをクリックしてください。</p>
                 <p style='text-align: center;'>
-                    <a href='{$verificationLink}' class='button'>メール認証を完了する</a>
+                    <a href='{$verificationLink}' style='color: #fff;' class='button'>メール認証を完了する</a>
                 </p>
                 <p>もし上記のボタンがクリックできない場合は、以下のURLをコピーしてブラウザのアドレスバーに貼り付けてください。</p>
                 <p style='word-break: break-all; background: #fff; padding: 10px; border-radius: 4px; font-size: 12px;'>{$verificationLink}</p>
-                <p><strong>※このリンクは24時間有効です。</strong></p>
+                <p><strong>※このリンクは15分間有効です。期限を過ぎた場合は、再度メール認証をリクエストしてください。</strong></p>
                 <p>このメールに心当たりがない場合は、このメールを無視してください。</p>
                 <div class='footer'>
                     <p>このメールは自動送信されています。返信はできません。</p>

@@ -8,10 +8,10 @@ require_once __DIR__ . '/../backend/includes/functions.php';
 startSessionIfNotStarted();
 
 // 既にログイン済みの場合はダッシュボードへ
-if (!empty($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit();
-}
+// if (!empty($_SESSION['user_id'])) {
+//     header('Location: index.php');
+//     exit();
+// }
 ?>
 <!DOCTYPE html>
 <html lang="ja">

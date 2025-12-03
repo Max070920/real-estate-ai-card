@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     status ENUM('pending', 'active', 'suspended', 'cancelled') NOT NULL DEFAULT 'pending',
     email_verified BOOLEAN DEFAULT FALSE,
     verification_token VARCHAR(255),
+    verification_token_expires_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP NULL,

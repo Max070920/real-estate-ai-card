@@ -24,8 +24,8 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // トークン検証
-    $stmt = $db->prepare("SELECT id, email FROM users WHERE verification_token = ? AND email_verified = 0");
+    // トークン検証（有効期限もチェック）
+    $stmt = $db->prepare("SELECT id, email, verification_token_expires_at FROM users WHERE verification_token = ? AND email_verified = 0");
     $stmt->execute([$token]);
     $user = $stmt->fetch();
 
@@ -33,8 +33,17 @@ try {
         sendErrorResponse('無効な認証トークンです', 400);
     }
 
+    // トークンの有効期限チェック
+    $now = date('Y-m-d H:i:s');
+    if ($user['verification_token_expires_at'] && $user['verification_token_expires_at'] < $now) {
+        // トークンが期限切れの場合、認証を無効化
+        $stmt = $db->prepare("UPDATE users SET verification_token = NULL, verification_token_expires_at = NULL WHERE id = ?");
+        $stmt->execute([$user['id']]);
+        sendErrorResponse('認証トークンの有効期限が切れています。メール認証を再度リクエストしてください。', 400);
+    }
+
     // メール認証完了
-    $stmt = $db->prepare("UPDATE users SET email_verified = 1, verification_token = NULL, status = 'active' WHERE id = ?");
+    $stmt = $db->prepare("UPDATE users SET email_verified = 1, verification_token = NULL, verification_token_expires_at = NULL, status = 'active' WHERE id = ?");
     $stmt->execute([$user['id']]);
 
     sendSuccessResponse([
