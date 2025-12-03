@@ -186,6 +186,12 @@ try {
     $_SESSION['user_email'] = $input['email'];
     $_SESSION['user_type'] = $input['user_type'];
 
+    // 管理者に新規登録通知メールを送信
+    $adminNotificationSent = sendAdminNotificationEmail($input['email'], $input['user_type'], $userId, $urlSlug);
+    if (!$adminNotificationSent) {
+        error_log("[Email Error] Admin notification email send failed for user ID: " . $userId);
+    }
+
     sendSuccessResponse([
         'user_id' => $userId,
         'email' => $input['email'],

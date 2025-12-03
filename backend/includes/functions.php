@@ -343,6 +343,97 @@ function sendEmail($to, $subject, $htmlMessage, $textMessage = '') {
 }
 
 /**
+ * 管理者に新規登録通知メールを送信
+ */
+function sendAdminNotificationEmail($userEmail, $userType, $userId, $urlSlug) {
+    if (!defined('NOTIFICATION_EMAIL') || empty(NOTIFICATION_EMAIL)) {
+        error_log("NOTIFICATION_EMAIL is not defined");
+        return false;
+    }
+
+    $adminEmail = 'inoue.sho95@gmail.com';
+    
+    // ユーザータイプの日本語表示
+    $userTypeLabels = [
+        'new' => '新規ユーザー',
+        'existing' => '既存ユーザー',
+        'free' => '無料ユーザー'
+    ];
+    $userTypeLabel = $userTypeLabels[$userType] ?? $userType;
+    
+    $registrationDate = date('Y年m月d日 H:i:s');
+    
+    // メール件名
+    $emailSubject = '【不動産AI名刺】新規ユーザー登録通知';
+    
+    // HTML本文
+    $emailBody = "
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #0066cc; color: #fff; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: #fff; }
+            .info-table th { background: #e9ecef; padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; width: 30%; }
+            .info-table td { padding: 12px; border: 1px solid #dee2e6; }
+            .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>不動産AI名刺</h1>
+            </div>
+            <div class='content'>
+                <p>新規ユーザーが登録されました。</p>
+                <table class='info-table'>
+                    <tr>
+                        <th>ユーザーID</th>
+                        <td>{$userId}</td>
+                    </tr>
+                    <tr>
+                        <th>メールアドレス</th>
+                        <td>{$userEmail}</td>
+                    </tr>
+                    <tr>
+                        <th>ユーザータイプ</th>
+                        <td>{$userTypeLabel}</td>
+                    </tr>
+                    <tr>
+                        <th>URLスラッグ</th>
+                        <td>{$urlSlug}</td>
+                    </tr>
+                    <tr>
+                        <th>登録日時</th>
+                        <td>{$registrationDate}</td>
+                    </tr>
+                </table>
+                <div class='footer'>
+                    <p>このメールは自動送信されています。返信はできません。</p>
+                    <p>© " . date('Y') . " 不動産AI名刺 All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    // プレーンテキスト版
+    $emailBodyText = 
+        "新規ユーザーが登録されました。\n\n" .
+        "ユーザーID: {$userId}\n" .
+        "メールアドレス: {$userEmail}\n" .
+        "ユーザータイプ: {$userTypeLabel}\n" .
+        "URLスラッグ: {$urlSlug}\n" .
+        "登録日時: {$registrationDate}\n";
+    
+    return sendEmail($adminEmail, $emailSubject, $emailBody, $emailBodyText);
+}
+
+/**
  * バリデーション: メールアドレス
  */
 function validateEmail($email) {
