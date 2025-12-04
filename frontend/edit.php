@@ -98,7 +98,27 @@ $userId = $_SESSION['user_id'];
                         <div class="form-section">
                             <h3>ご挨拶 <span class="required">*</span></h3>
                             <p class="section-note">挨拶文の順序を上下のボタンで変更できます。デフォルトの文章もそのまま使用できます。</p>
-                            <div id="greetings-list"></div>
+                            <div id="greetings-list">
+                                <?php foreach ($defaultGreetings as $index => $greeting): ?>
+                                <div class="greeting-item" data-order="<?php echo $index; ?>">
+                                    <div class="greeting-header">
+                                        <span class="greeting-number"><?php echo $index + 1; ?></span>
+                                        <div class="greeting-actions">
+                                            <button type="button" class="btn-move-up" onclick="moveGreeting(<?php echo $index; ?>, 'up')" <?php echo $index === 0 ? 'disabled' : ''; ?>>↑</button>
+                                            <button type="button" class="btn-move-down" onclick="moveGreeting(<?php echo $index; ?>, 'down')" <?php echo $index === 4 ? 'disabled' : ''; ?>>↓</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>タイトル</label>
+                                        <input type="text" name="greeting_title[]" class="form-control" value="<?php echo htmlspecialchars($greeting['title']); ?>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>本文</label>
+                                        <textarea name="greeting_content[]" class="form-control" rows="4" required><?php echo htmlspecialchars($greeting['content']); ?></textarea>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
                             <button type="button" class="btn-add" onclick="addGreeting()">挨拶文を追加</button>
                         </div>
 

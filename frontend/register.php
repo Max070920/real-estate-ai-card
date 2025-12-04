@@ -105,7 +105,7 @@ $prefectures = [
             </div>
 
             <!-- Step 1: Header & Greeting -->
-            <div id="step-1" class="register-step">
+            <div id="step-1" class="register-step active">
                 <h1>ヘッダー・挨拶部</h1>
                 <p class="step-description">会社情報とご挨拶文を入力してください</p>
 
@@ -172,7 +172,7 @@ $prefectures = [
             </div>
 
             <!-- Step 2: Company Profile -->
-            <div id="step-2" class="register-step active">
+            <div id="step-2" class="register-step">
                 <h1>会社プロフィール部</h1>
                 <p class="step-description">会社情報を入力してください</p>
 

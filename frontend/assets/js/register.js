@@ -5,6 +5,259 @@
 let currentStep = 1;
 let formData = {};
 let completedSteps = new Set(); // Track which steps have been submitted
+let businessCardData = null; // Store loaded business card data
+
+// Load existing business card data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadExistingBusinessCardData();
+});
+
+// Load existing business card data from API and populate forms
+async function loadExistingBusinessCardData() {
+    try {
+        const response = await fetch('../backend/api/business-card/get.php', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            console.log('No existing data found or not logged in');
+            return;
+        }
+        
+        const result = await response.json();
+        console.log('Loaded business card data:', result);
+        
+        if (result.success && result.data) {
+            businessCardData = result.data;
+            populateRegistrationForms(businessCardData);
+        }
+    } catch (error) {
+        console.error('Error loading business card data:', error);
+    }
+}
+
+// Populate all registration forms with existing data
+function populateRegistrationForms(data) {
+    console.log('Populating registration forms with:', data);
+    
+    // Step 1: Header & Greeting
+    if (data.company_name) {
+        const companyNameInput = document.querySelector('#header-greeting-form input[name="company_name"]');
+        if (companyNameInput) companyNameInput.value = data.company_name;
+    }
+    
+    // Logo preview
+    if (data.company_logo) {
+        const logoPreview = document.querySelector('#logo-upload .upload-preview');
+        if (logoPreview) {
+            const logoPath = data.company_logo.startsWith('http') ? data.company_logo : '../' + data.company_logo;
+            logoPreview.innerHTML = `<img src="${logoPath}" alt="ロゴ" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+        }
+    }
+    
+    // Profile photo preview
+    if (data.profile_photo) {
+        const photoPreview = document.querySelector('#photo-upload-header .upload-preview');
+        if (photoPreview) {
+            const photoPath = data.profile_photo.startsWith('http') ? data.profile_photo : '../' + data.profile_photo;
+            photoPreview.innerHTML = `<img src="${photoPath}" alt="プロフィール写真" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+        }
+    }
+    
+    // Greetings - update existing greeting items
+    if (data.greetings && Array.isArray(data.greetings) && data.greetings.length > 0) {
+        const greetingItems = document.querySelectorAll('#greetings-container .greeting-item');
+        data.greetings.forEach((greeting, index) => {
+            if (greetingItems[index]) {
+                const titleInput = greetingItems[index].querySelector('input[name="greeting_title[]"]');
+                const contentTextarea = greetingItems[index].querySelector('textarea[name="greeting_content[]"]');
+                if (titleInput) titleInput.value = greeting.title || '';
+                if (contentTextarea) contentTextarea.value = greeting.content || '';
+            }
+        });
+    }
+    
+    // Step 2: Company Profile
+    if (data.real_estate_license_prefecture) {
+        const prefSelect = document.getElementById('license_prefecture');
+        if (prefSelect) prefSelect.value = data.real_estate_license_prefecture;
+    }
+    if (data.real_estate_license_renewal_number) {
+        const renewalSelect = document.getElementById('license_renewal');
+        if (renewalSelect) renewalSelect.value = data.real_estate_license_renewal_number;
+    }
+    if (data.real_estate_license_registration_number) {
+        const regInput = document.getElementById('license_registration');
+        if (regInput) regInput.value = data.real_estate_license_registration_number;
+    }
+    if (data.company_name) {
+        const companyProfileInput = document.querySelector('input[name="company_name_profile"]');
+        if (companyProfileInput) companyProfileInput.value = data.company_name;
+    }
+    if (data.company_postal_code) {
+        const postalInput = document.getElementById('company_postal_code');
+        if (postalInput) postalInput.value = data.company_postal_code;
+    }
+    if (data.company_address) {
+        const addressInput = document.getElementById('company_address');
+        if (addressInput) addressInput.value = data.company_address;
+    }
+    if (data.company_phone) {
+        const phoneInput = document.querySelector('input[name="company_phone"]');
+        if (phoneInput) phoneInput.value = data.company_phone;
+    }
+    if (data.company_website) {
+        const websiteInput = document.querySelector('input[name="company_website"]');
+        if (websiteInput) websiteInput.value = data.company_website;
+    }
+    
+    // Step 3: Personal Information
+    if (data.branch_department) {
+        const branchInput = document.querySelector('input[name="branch_department"]');
+        if (branchInput) branchInput.value = data.branch_department;
+    }
+    if (data.position) {
+        const positionInput = document.querySelector('input[name="position"]');
+        if (positionInput) positionInput.value = data.position;
+    }
+    
+    // Name (split into last_name and first_name)
+    if (data.name) {
+        const nameParts = data.name.trim().split(/\s+/);
+        const lastNameInput = document.getElementById('last_name');
+        const firstNameInput = document.getElementById('first_name');
+        if (lastNameInput && firstNameInput) {
+            if (nameParts.length >= 2) {
+                lastNameInput.value = nameParts[0];
+                firstNameInput.value = nameParts.slice(1).join(' ');
+            } else {
+                lastNameInput.value = data.name;
+            }
+        }
+    }
+    
+    // Name Romaji
+    if (data.name_romaji) {
+        const romajiParts = data.name_romaji.trim().split(/\s+/);
+        const lastNameRomajiInput = document.getElementById('last_name_romaji');
+        const firstNameRomajiInput = document.getElementById('first_name_romaji');
+        if (lastNameRomajiInput && firstNameRomajiInput) {
+            if (romajiParts.length >= 2) {
+                lastNameRomajiInput.value = romajiParts[0];
+                firstNameRomajiInput.value = romajiParts.slice(1).join(' ');
+            } else {
+                lastNameRomajiInput.value = data.name_romaji;
+            }
+        }
+    }
+    
+    if (data.mobile_phone) {
+        const mobileInput = document.querySelector('input[name="mobile_phone"]');
+        if (mobileInput) mobileInput.value = data.mobile_phone;
+    }
+    if (data.birth_date) {
+        const birthInput = document.querySelector('input[name="birth_date"]');
+        if (birthInput) birthInput.value = data.birth_date;
+    }
+    if (data.current_residence) {
+        const residenceInput = document.querySelector('input[name="current_residence"]');
+        if (residenceInput) residenceInput.value = data.current_residence;
+    }
+    if (data.hometown) {
+        const hometownInput = document.querySelector('input[name="hometown"]');
+        if (hometownInput) hometownInput.value = data.hometown;
+    }
+    if (data.alma_mater) {
+        const almaMaterInput = document.querySelector('input[name="alma_mater"]');
+        if (almaMaterInput) almaMaterInput.value = data.alma_mater;
+    }
+    
+    // Qualifications
+    if (data.qualifications) {
+        const qualifications = data.qualifications.split('、');
+        if (qualifications.includes('宅地建物取引士')) {
+            const takkenCheckbox = document.querySelector('input[name="qualification_takken"]');
+            if (takkenCheckbox) takkenCheckbox.checked = true;
+        }
+        if (qualifications.includes('建築士')) {
+            const kenchikushiCheckbox = document.querySelector('input[name="qualification_kenchikushi"]');
+            if (kenchikushiCheckbox) kenchikushiCheckbox.checked = true;
+        }
+        const otherQuals = qualifications.filter(q => q !== '宅地建物取引士' && q !== '建築士').join('、');
+        if (otherQuals) {
+            const otherInput = document.querySelector('textarea[name="qualifications_other"]');
+            if (otherInput) otherInput.value = otherQuals;
+        }
+    }
+    
+    if (data.hobbies) {
+        const hobbiesInput = document.querySelector('textarea[name="hobbies"]');
+        if (hobbiesInput) hobbiesInput.value = data.hobbies;
+    }
+    
+    // Free input
+    if (data.free_input) {
+        try {
+            const freeInputData = JSON.parse(data.free_input);
+            if (freeInputData.text) {
+                const freeTextInput = document.querySelector('textarea[name="free_input_text"]');
+                if (freeTextInput) freeTextInput.value = freeInputData.text;
+            }
+            if (freeInputData.image_link) {
+                const freeLinkInput = document.querySelector('input[name="free_image_link"]');
+                if (freeLinkInput) freeLinkInput.value = freeInputData.image_link;
+            }
+            if (freeInputData.image) {
+                const freeImagePreview = document.querySelector('#free-image-upload .upload-preview');
+                if (freeImagePreview) {
+                    const imagePath = freeInputData.image.startsWith('http') ? freeInputData.image : '../' + freeInputData.image;
+                    freeImagePreview.innerHTML = `<img src="${imagePath}" alt="フリー画像" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing free_input:', e);
+        }
+    }
+    
+    // Step 4: Tech Tools
+    if (data.tech_tools && Array.isArray(data.tech_tools)) {
+        data.tech_tools.forEach(tool => {
+            if (tool.is_active) {
+                const checkbox = document.querySelector(`input[name="tech_tools[]"][value="${tool.tool_type}"]`);
+                if (checkbox) checkbox.checked = true;
+            }
+        });
+    }
+    
+    // Step 5: Communication Methods
+    if (data.communication_methods && Array.isArray(data.communication_methods)) {
+        data.communication_methods.forEach(method => {
+            // Check the checkbox
+            const checkbox = document.querySelector(`input[name="comm_${method.method_type}"]`);
+            if (checkbox) {
+                checkbox.checked = method.is_active;
+                
+                // Show details div
+                const item = checkbox.closest('.communication-item');
+                if (item) {
+                    const details = item.querySelector('.comm-details');
+                    if (details && method.is_active) {
+                        details.style.display = 'block';
+                        
+                        // Fill in the value
+                        const input = details.querySelector('input');
+                        if (input) {
+                            input.value = method.method_url || method.method_id || '';
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    console.log('Registration forms populated');
+}
 
 // Step navigation
 function goToStep(step) {
@@ -185,6 +438,9 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
         } catch (error) {
             console.error('Logo upload error:', error);
         }
+    } else if (businessCardData && businessCardData.company_logo) {
+        // Preserve existing logo
+        data.company_logo = businessCardData.company_logo;
     }
     
     // Handle profile photo upload
@@ -210,6 +466,9 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
         } catch (error) {
             console.error('Photo upload error:', error);
         }
+    } else if (businessCardData && businessCardData.profile_photo) {
+        // Preserve existing profile photo
+        data.profile_photo = businessCardData.profile_photo;
     }
     
     // Handle greetings - get order from DOM
@@ -356,11 +615,21 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
             const uploadResult = await uploadResponse.json();
             if (uploadResult.success) {
                 const fullPath = uploadResult.data.file_path;
-                const relativePath = fullPath.split('/php/')[1];
+                const relativePath = fullPath.split('/php/')[1] || fullPath;
                 freeInputData.image = relativePath;
             }
         } catch (error) {
             console.error('Upload error:', error);
+        }
+    } else if (businessCardData && businessCardData.free_input) {
+        // Preserve existing free image
+        try {
+            const existingFreeInput = JSON.parse(businessCardData.free_input);
+            if (existingFreeInput.image) {
+                freeInputData.image = existingFreeInput.image;
+            }
+        } catch (e) {
+            console.error('Error parsing free_input:', e);
         }
     }
     

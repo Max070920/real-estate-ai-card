@@ -100,7 +100,8 @@ function populateForms(data) {
             console.log('Displaying greetings:', data.greetings);
             displayGreetings(data.greetings);
         } else {
-            console.log('No greetings to display');
+            console.log('No greetings - displaying defaults');
+            displayDefaultGreetings();
         }
     }
     
@@ -276,6 +277,62 @@ function populateForms(data) {
     }
     
     console.log('Form population complete');
+}
+
+// Default greetings (same as register.php)
+const defaultGreetings = [
+    {
+        title: '笑顔が増える「住み替え」を叶えます',
+        content: '初めての売買で感じる不安や疑問。「あなたに頼んでよかった」と言っていただけるよう、理想の住まい探しと売却を全力で伴走いたします。私は、お客様が描く「10年後の幸せな日常」を第一に考えます。'
+    },
+    {
+        title: '自宅は大きな貯金箱',
+        content: '「不動産売買は人生最大の投資」という視点に立ち、物件のメリットだけでなく、将来のリスクやデメリットも隠さずお伝えするのが信条です。感情に流されない、確実な資産形成と納得のいく取引をサポートします。'
+    },
+    {
+        title: 'お客様に「情報武装」をご提案',
+        content: '「この価格は妥当なのだろうか？」「もっとよい物件情報は無いのだろうか？」私は全ての情報をお客様に開示いたしますが、お客様に「情報武装」していただく事で、それをさらに担保いたします。他のエージェントにはない、私独自のサービスをご活用ください。'
+    },
+    {
+        title: 'お客様を「3つの疲労」から解放いたします',
+        content: '一つ目は、ポータルサイト巡りの「情報収集疲労」。二つ目は、不動産会社への「問い合わせ疲労」、専門知識不足による「判断疲労」です。私がご提供するテックツールで、情報収集は自動化、私が全ての情報を公開しますので多くの不動産会社に問い合わせることも不要、物件情報にAI評価がついているので客観的判断も自動化されます。'
+    },
+    {
+        title: '忙しい子育て世代へ。手間を省くスマート売買',
+        content: '「売り」と「買い」を同時に進める住み替えは手続きが煩雑になりがちです。忙しいご夫婦に代わり、書類作成から金融機関との折衝、内覧の調整まで私が窓口となってスムーズに進めます。お子様連れでの内覧や打ち合わせも大歓迎です。ご家族の貴重な時間を奪わないよう、迅速かつ丁寧な段取りをお約束します。'
+    }
+];
+
+// Display default greetings when no saved greetings exist
+function displayDefaultGreetings() {
+    const greetingsList = document.getElementById('greetings-list');
+    if (!greetingsList) return;
+    
+    greetingsList.innerHTML = '';
+    
+    defaultGreetings.forEach((greeting, index) => {
+        const greetingItem = document.createElement('div');
+        greetingItem.className = 'greeting-item';
+        greetingItem.dataset.order = index;
+        greetingItem.innerHTML = `
+            <div class="greeting-header">
+                <span class="greeting-number">${index + 1}</span>
+                <div class="greeting-actions">
+                    <button type="button" class="btn-move-up" onclick="moveGreeting(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
+                    <button type="button" class="btn-move-down" onclick="moveGreeting(${index}, 'down')" ${index === defaultGreetings.length - 1 ? 'disabled' : ''}>↓</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>タイトル</label>
+                <input type="text" class="form-control greeting-title" value="${escapeHtml(greeting.title)}" placeholder="タイトル">
+            </div>
+            <div class="form-group">
+                <label>本文</label>
+                <textarea class="form-control greeting-content" rows="4" placeholder="本文">${escapeHtml(greeting.content)}</textarea>
+            </div>
+        `;
+        greetingsList.appendChild(greetingItem);
+    });
 }
 
 // Display greetings
