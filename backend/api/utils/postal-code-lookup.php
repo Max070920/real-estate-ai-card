@@ -53,19 +53,19 @@ try {
     }
 
     $result = $data['results'][0];
-    $address = $result['address1'] . $result['address2'] . $result['address3'];
     
-    // Remove empty parts
-    $address = str_replace(['都', '道', '府', '県'], '', $result['address1']) . 
-               ($result['address2'] ?? '') . 
-               ($result['address3'] ?? '');
+    // Build full address (prefecture + city + street)
+    $prefecture = $result['address1'] ?? '';
+    $city = $result['address2'] ?? '';
+    $street = $result['address3'] ?? '';
+    $fullAddress = $prefecture . $city . $street;
 
     sendSuccessResponse([
         'postal_code' => $postalCode,
-        'prefecture' => $result['address1'] ?? '',
-        'city' => $result['address2'] ?? '',
-        'street' => $result['address3'] ?? '',
-        'address' => $address
+        'prefecture' => $prefecture,
+        'city' => $city,
+        'street' => $street,
+        'address' => $fullAddress
     ], '住所を取得しました');
 
 } catch (Exception $e) {
