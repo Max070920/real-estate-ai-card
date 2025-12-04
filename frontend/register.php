@@ -57,6 +57,7 @@ $prefectures = [
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/register.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
 </head>
 <body>
     <div class="register-container">
@@ -700,6 +701,7 @@ $prefectures = [
     </div>
     <?php endif; ?>
 
+    <script src="assets/js/modal.js"></script>
     <script src="assets/js/register.js"></script>
     <script src="assets/js/mobile-menu.js"></script>
     <script>
@@ -745,7 +747,7 @@ $prefectures = [
                             const event = new Event('change', { bubbles: true });
                             fileInput.dispatchEvent(event);
                         } else {
-                            alert('画像ファイルを選択してください');
+                            showWarning('画像ファイルを選択してください');
                         }
                     }
                 });

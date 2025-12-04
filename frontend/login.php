@@ -21,6 +21,7 @@ startSessionIfNotStarted();
     <title>ログイン - 不動産AI名刺</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
     <style>
         .login-container {
             min-height: 100vh;
@@ -209,7 +210,7 @@ startSessionIfNotStarted();
             const email = document.querySelector('input[name="email"]').value;
             
             if (!email) {
-                alert('メールアドレスを入力してください');
+                showWarning('メールアドレスを入力してください');
                 return;
             }
             
@@ -234,10 +235,11 @@ startSessionIfNotStarted();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('エラーが発生しました');
+                showError('エラーが発生しました');
             }
         });
     </script>
+    <script src="assets/js/modal.js"></script>
 </body>
 </html>
 

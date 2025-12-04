@@ -17,6 +17,7 @@ $userType = $_GET['type'] ?? 'new'; // new, existing, free
     <title>アカウント作成 - 不動産AI名刺</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/register.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
 </head>
 <body>
     <div class="register-container">
@@ -188,14 +189,15 @@ $userType = $_GET['type'] ?? 'new'; // new, existing, free
                 if (result.success) {
                     window.location.href = 'login.php';
                 } else {
-                    alert(result.message || '登録に失敗しました');
+                    showError(result.message || '登録に失敗しました');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('エラーが発生しました');
+                showError('エラーが発生しました');
             }
         });
     </script>
+    <script src="assets/js/modal.js"></script>
 </body>
 </html>
 

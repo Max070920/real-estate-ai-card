@@ -107,6 +107,7 @@ $users = $stmt->fetchAll();
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/mobile.css">
     <link rel="stylesheet" href="../assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="../assets/css/modal.css">
 </head>
 <body>
     <div class="admin-container">
@@ -190,6 +191,7 @@ $users = $stmt->fetchAll();
         </div>
     </div>
 
+    <script src="../assets/js/modal.js"></script>
     <script src="../assets/js/admin.js"></script>
 </body>
 </html>

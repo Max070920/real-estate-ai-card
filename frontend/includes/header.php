@@ -17,6 +17,8 @@ $showNavLinks = isset($showNavLinks) ? $showNavLinks : true;
 ?>
 <!-- Mobile CSS -->
 <link rel="stylesheet" href="assets/css/mobile.css">
+<!-- Modal Notification CSS -->
+<link rel="stylesheet" href="assets/css/modal.css">
 
 <!-- Header -->
 <header class="header">
@@ -111,5 +113,7 @@ $showNavLinks = isset($showNavLinks) ? $showNavLinks : true;
 
 <!-- Mobile Menu Script -->
 <script src="assets/js/mobile-menu.js"></script>
+<!-- Modal Notification Script -->
+<script src="assets/js/modal.js"></script>
 
 

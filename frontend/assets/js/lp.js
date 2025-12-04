@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const email = document.getElementById('newsletter-email').value;
             // TODO: Implement newsletter subscription API
-            alert('メールアドレスを登録しました: ' + email);
+            showSuccess('メールアドレスを登録しました: ' + email);
             newsletterForm.reset();
         });
     }

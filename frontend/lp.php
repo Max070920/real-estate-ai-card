@@ -13,6 +13,7 @@ require_once __DIR__ . '/../backend/config/config.php';
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/lp.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 </head>
@@ -552,6 +553,7 @@ require_once __DIR__ . '/../backend/config/config.php';
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="assets/js/modal.js"></script>
     <script src="assets/js/lp.js"></script>
     <script src="assets/js/mobile-menu.js"></script>
 </body>

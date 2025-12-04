@@ -337,7 +337,7 @@ document.getElementById('lookup-address')?.addEventListener('click', async () =>
     const postalCode = document.getElementById('company_postal_code').value.replace(/-/g, '');
     
     if (!postalCode || postalCode.length !== 7) {
-        alert('7桁の郵便番号を入力してください');
+        showWarning('7桁の郵便番号を入力してください');
         return;
     }
     
@@ -348,11 +348,11 @@ document.getElementById('lookup-address')?.addEventListener('click', async () =>
         if (result.success) {
             document.getElementById('company_address').value = result.data.address;
         } else {
-            alert(result.message || '住所の取得に失敗しました');
+            showError(result.message || '住所の取得に失敗しました');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -363,7 +363,7 @@ document.getElementById('lookup-license')?.addEventListener('click', async () =>
     const registration = document.getElementById('license_registration').value;
     
     if (!prefecture || !renewal || !registration) {
-        alert('都道府県、更新番号、登録番号をすべて入力してください');
+        showWarning('都道府県、更新番号、登録番号をすべて入力してください');
         return;
     }
     
@@ -389,11 +389,11 @@ document.getElementById('lookup-license')?.addEventListener('click', async () =>
                 document.getElementById('company_address').value = result.data.address;
             }
         } else {
-            alert(result.message || '会社情報の取得に失敗しました');
+            showError(result.message || '会社情報の取得に失敗しました');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -514,11 +514,11 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
         if (result.success) {
             goToStep(2);
         } else {
-            alert('更新に失敗しました: ' + result.message);
+            showError('更新に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -555,11 +555,11 @@ document.getElementById('company-profile-form')?.addEventListener('submit', asyn
         if (result.success) {
             goToStep(3);
         } else {
-            alert('更新に失敗しました: ' + result.message);
+            showError('更新に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -668,11 +668,11 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
         if (result.success) {
             goToStep(4);
         } else {
-            alert('更新に失敗しました: ' + result.message);
+            showError('更新に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -684,7 +684,7 @@ document.getElementById('tech-tools-form')?.addEventListener('submit', async (e)
         .map(cb => cb.value);
     
     if (selectedTools.length < 2) {
-        alert('最低2つ以上のテックツールを選択してください');
+        showWarning('最低2つ以上のテックツールを選択してください');
         return;
     }
     
@@ -830,11 +830,11 @@ document.getElementById('communication-form')?.addEventListener('submit', async 
         if (result.success) {
             goToStep(6);
         } else {
-            alert('更新に失敗しました: ' + result.message);
+            showError('更新に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 
@@ -843,7 +843,7 @@ document.getElementById('submit-payment')?.addEventListener('click', async () =>
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
     
     if (!paymentMethod) {
-        alert('支払方法を選択してください');
+        showWarning('支払方法を選択してください');
         return;
     }
     
@@ -870,11 +870,11 @@ document.getElementById('submit-payment')?.addEventListener('click', async () =>
                 window.location.href = 'payment-bank-transfer.php';
             }
         } else {
-            alert(result.message || '決済処理に失敗しました');
+            showError(result.message || '決済処理に失敗しました');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 });
 

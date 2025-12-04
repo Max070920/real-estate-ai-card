@@ -51,7 +51,7 @@ async function loadBusinessCardData() {
             if (previewContent) {
                 previewContent.innerHTML = `<p style="color: red;">${errorMsg}</p>`;
             }
-            alert('データの読み込みに失敗しました: ' + errorMsg);
+            showError('データの読み込みに失敗しました: ' + errorMsg);
         }
     } catch (error) {
         console.error('Error loading business card data:', error);
@@ -61,7 +61,7 @@ async function loadBusinessCardData() {
         if (previewContent) {
             previewContent.innerHTML = `<p style="color: red;">${errorMsg}</p>`;
         }
-        alert('エラーが発生しました: ' + errorMsg);
+        showError('エラーが発生しました: ' + errorMsg);
     }
 }
 
@@ -633,7 +633,7 @@ async function handleFileUpload(event, fieldName) {
     if (!file) return;
     
     if (!file.type.startsWith('image/')) {
-        alert('画像ファイルを選択してください');
+        showWarning('画像ファイルを選択してください');
         return;
     }
     
@@ -715,11 +715,11 @@ async function handleFileUpload(event, fieldName) {
                 console.log('Image auto-resized:', result.data);
             }
         } else {
-            alert('アップロードに失敗しました: ' + result.message);
+            showError('アップロードに失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Upload error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 }
 
@@ -785,20 +785,29 @@ async function saveGreetings() {
         const result = await response.json();
         
         if (result.success) {
-            alert('保存しました');
+            showSuccess('保存しました');
             loadBusinessCardData(); // Reload data
         } else {
-            alert('保存に失敗しました: ' + result.message);
+            showError('保存に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 }
 
 // Delete greeting
 function deleteGreeting(id) {
-    if (!confirm('この挨拶文を削除しますか？')) return;
+    showConfirm('この挨拶文を削除しますか？', () => {
+        // Remove from DOM
+        const item = document.querySelector(`.greeting-item[data-id="${id}"]`);
+        if (item) {
+            item.remove();
+        }
+        // Save changes
+        saveGreetings();
+    });
+    return;
     
     // Remove from DOM
     const item = document.querySelector(`.greeting-item[data-id="${id}"]`);
@@ -838,7 +847,7 @@ async function saveTechTools() {
     });
     
     if (selectedToolTypes.length < 2) {
-        alert('最低2つ以上のテックツールを選択してください');
+        showWarning('最低2つ以上のテックツールを選択してください');
         return;
     }
     
@@ -855,7 +864,7 @@ async function saveTechTools() {
         
         const urlResult = await urlResponse.json();
         if (!urlResult.success) {
-            alert('URL生成に失敗しました: ' + urlResult.message);
+            showError('URL生成に失敗しました: ' + urlResult.message);
             return;
         }
         
@@ -882,14 +891,14 @@ async function saveTechTools() {
         const saveResult = await saveResponse.json();
         
         if (saveResult.success) {
-            alert('保存しました');
+            showSuccess('保存しました');
             loadBusinessCardData(); // Reload data
         } else {
-            alert('保存に失敗しました: ' + saveResult.message);
+            showError('保存に失敗しました: ' + saveResult.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 }
 
@@ -904,16 +913,16 @@ function toggleCommunicationMethod(id, isActive) {
 
 // Delete communication method
 async function deleteCommunicationMethod(id) {
-    if (!confirm('このコミュニケーション方法を削除しますか？')) return;
-    
-    // Remove from DOM
-    const item = document.querySelector(`.communication-item[data-id="${id}"]`);
-    if (item) {
-        item.remove();
-    }
-    
-    // Save changes
-    await saveCommunicationMethods();
+    showConfirm('このコミュニケーション方法を削除しますか？', async () => {
+        // Remove from DOM
+        const item = document.querySelector(`.communication-item[data-id="${id}"]`);
+        if (item) {
+            item.remove();
+        }
+        // Save changes
+        await saveCommunicationMethods();
+    });
+    return;
 }
 
 // Add communication method
@@ -971,7 +980,7 @@ function addCommunicationMethod() {
     
     // If all methods are already added, show message
     if (!nextMethod) {
-        alert('すべてのコミュニケーション方法が追加済みです');
+        showInfo('すべてのコミュニケーション方法が追加済みです');
         return;
     }
     
@@ -1091,13 +1100,13 @@ async function saveCommunicationMethods() {
     
     // Show validation errors if any
     if (errors.length > 0) {
-        alert('入力内容に誤りがあります:\n' + errors.join('\n'));
+        showError('入力内容に誤りがあります:\n' + errors.join('\n'));
         return;
     }
     
     // If no methods selected, show warning
     if (methods.length === 0) {
-        alert('少なくとも1つのコミュニケーション方法を選択してください');
+        showWarning('少なくとも1つのコミュニケーション方法を選択してください');
         return;
     }
     
@@ -1114,14 +1123,14 @@ async function saveCommunicationMethods() {
         const result = await response.json();
         
         if (result.success) {
-            alert('保存しました');
+            showSuccess('保存しました');
             loadBusinessCardData(); // Reload data
         } else {
-            alert('保存に失敗しました: ' + result.message);
+            showError('保存に失敗しました: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 }
 

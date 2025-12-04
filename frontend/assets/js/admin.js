@@ -49,14 +49,13 @@ async function processPayment(businessCardId) {
         const result = await response.json();
         
         if (result.success) {
-            alert('入金を確認し、QRコードを発行しました');
-            location.reload();
+            showSuccess('入金を確認し、QRコードを発行しました', { autoClose: 2000, onClose: () => location.reload() });
         } else {
-            alert(result.message || '処理に失敗しました');
+            showError(result.message || '処理に失敗しました');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('エラーが発生しました');
+        showError('エラーが発生しました');
     }
 }
 

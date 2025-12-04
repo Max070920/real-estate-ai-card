@@ -24,6 +24,7 @@ $userId = $_SESSION['user_id'];
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/edit.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
     <style>
         .btn-secondary {
             background: #6c757d;
@@ -352,6 +353,7 @@ $userId = $_SESSION['user_id'];
         </div>
     </div>
 
+    <script src="assets/js/modal.js"></script>
     <script src="assets/js/edit.js"></script>
     <script src="assets/js/mobile-menu.js"></script>
     <script>
@@ -410,14 +412,14 @@ $userId = $_SESSION['user_id'];
                         const result = await response.json();
                         
                         if (result.success) {
-                            alert('保存しました');
+                            showSuccess('保存しました');
                             loadBusinessCardData();
                         } else {
-                            alert('保存に失敗しました: ' + result.message);
+                            showError('保存に失敗しました: ' + result.message);
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('エラーが発生しました');
+                        showError('エラーが発生しました');
                     }
                 });
             }
@@ -454,14 +456,14 @@ $userId = $_SESSION['user_id'];
                         const result = await response.json();
                         
                         if (result.success) {
-                            alert('保存しました');
+                            showSuccess('保存しました');
                             loadBusinessCardData();
                         } else {
-                            alert('保存に失敗しました: ' + result.message);
+                            showError('保存に失敗しました: ' + result.message);
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('エラーが発生しました');
+                        showError('エラーが発生しました');
                     }
                 });
             }
@@ -566,14 +568,14 @@ $userId = $_SESSION['user_id'];
                         const result = await response.json();
                         
                         if (result.success) {
-                            alert('保存しました');
+                            showSuccess('保存しました');
                             loadBusinessCardData();
                         } else {
-                            alert('保存に失敗しました: ' + result.message);
+                            showError('保存に失敗しました: ' + result.message);
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('エラーが発生しました');
+                        showError('エラーが発生しました');
                     }
                 });
             }
@@ -583,7 +585,7 @@ $userId = $_SESSION['user_id'];
                 const postalCode = document.getElementById('company_postal_code').value.replace(/-/g, '');
                 
                 if (!postalCode || postalCode.length !== 7) {
-                    alert('7桁の郵便番号を入力してください');
+                    showWarning('7桁の郵便番号を入力してください');
                     return;
                 }
                 
@@ -594,11 +596,11 @@ $userId = $_SESSION['user_id'];
                     if (result.success) {
                         document.getElementById('company_address').value = result.data.address;
                     } else {
-                        alert(result.message || '住所の取得に失敗しました');
+                        showError(result.message || '住所の取得に失敗しました');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('エラーが発生しました');
+                    showError('エラーが発生しました');
                 }
             });
             
@@ -609,7 +611,7 @@ $userId = $_SESSION['user_id'];
                 const registration = document.getElementById('license_registration').value;
                 
                 if (!prefecture || !renewal || !registration) {
-                    alert('都道府県、更新番号、登録番号をすべて入力してください');
+                    showWarning('都道府県、更新番号、登録番号をすべて入力してください');
                     return;
                 }
                 
@@ -635,11 +637,11 @@ $userId = $_SESSION['user_id'];
                             document.getElementById('company_address').value = result.data.address;
                         }
                     } else {
-                        alert(result.message || '会社情報の取得に失敗しました');
+                        showError(result.message || '会社情報の取得に失敗しました');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('エラーが発生しました');
+                    showError('エラーが発生しました');
                 }
             });
         });
@@ -742,7 +744,7 @@ $userId = $_SESSION['user_id'];
                             const event = new Event('change', { bubbles: true });
                             fileInput.dispatchEvent(event);
                         } else {
-                            alert('画像ファイルを選択してください');
+                            showWarning('画像ファイルを選択してください');
                         }
                     }
                 });
