@@ -58,7 +58,7 @@ $userId = $_SESSION['user_id'];
                     <a href="#tech-tools" class="nav-item">テックツール</a>
                     <a href="#communication" class="nav-item">コミュニケーション</a>
                 </nav>
-                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
+                <div class="edit-sidebar-actions" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-direction: column; padding-inline: 10px;">
                         <a href="auth/forgot-password.php" class="btn-secondary" style="text-align: center; padding: 0.75rem; text-decoration: none; display: inline-block; border-radius: 4px;">パスワードリセット</a>
                         <a href="auth/reset-email.php" class="btn-secondary" style="text-align: center; padding: 0.75rem; text-decoration: none; display: inline-block; border-radius: 4px;">メールアドレスリセット</a>

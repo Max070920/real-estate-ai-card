@@ -235,12 +235,29 @@
         box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     }
 
+    /* Show mobile-only dropdown items on mobile/tablet */
+    .user-dropdown .mobile-only-dropdown {
+        display: block !important;
+    }
+
     /* Buttons in header */
     .nav .btn-primary,
     .nav .btn-secondary {
         font-size: 0.9rem;
         padding: 0.75rem 1.25rem;
         min-height: 40px;
+    }
+
+    /* Show mobile-only dropdown items on mobile/tablet */
+    .user-dropdown .mobile-only-dropdown {
+        display: block !important;
+    }
+}
+
+/* Tablet and below (968px and below) - Show mobile dropdown items */
+@media (max-width: 968px) {
+    .user-dropdown .mobile-only-dropdown {
+        display: block !important;
     }
 }
 

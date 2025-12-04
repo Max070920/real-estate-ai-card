@@ -50,6 +50,12 @@ $showNavLinks = isset($showNavLinks) ? $showNavLinks : true;
                         <a href="edit.php" class="dropdown-item">
                             <span>マイページ</span>
                         </a>
+                        <a href="auth/reset-email.php" class="dropdown-item mobile-only-dropdown">
+                            <span>メールアドレスリセット</span>
+                        </a>
+                        <a href="auth/forgot-password.php" class="dropdown-item mobile-only-dropdown">
+                            <span>パスワードリセット</span>
+                        </a>
                         <a href="#" id="logout-link" class="dropdown-item">
                             <span>ログアウト</span>
                         </a>

@@ -156,6 +156,11 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Hide mobile-only dropdown items on PC (screens wider than 968px) */
+.user-dropdown .mobile-only-dropdown {
+    display: none;
+}
+
 /* Ensure user menu appears in same position as btn-secondary */
 .user-menu {
     margin: 0;

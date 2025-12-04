@@ -589,6 +589,11 @@ body {
     .tech-tools-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
+
+    /* Hide sidebar action buttons on mobile/tablet - they're in the header dropdown */
+    .edit-sidebar-actions {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
