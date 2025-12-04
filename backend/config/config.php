@@ -29,8 +29,20 @@ define('API_BASE_URL', BASE_URL . '/backend/api');
 
 // ファイルアップロード設定
 define('UPLOAD_DIR', __DIR__ . '/../uploads/');
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
+define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB (before resize)
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+// 画像リサイズ設定
+define('IMAGE_RESIZE_ENABLED', true);
+define('IMAGE_QUALITY', 85); // JPEG/WebP quality (1-100)
+
+// アップロードタイプ別の最大サイズ設定
+define('IMAGE_SIZES', [
+    'logo' => ['maxWidth' => 400, 'maxHeight' => 400],      // ロゴ: 400x400
+    'photo' => ['maxWidth' => 800, 'maxHeight' => 800],     // プロフィール写真: 800x800
+    'free' => ['maxWidth' => 1200, 'maxHeight' => 1200],    // フリー画像: 1200x1200
+    'default' => ['maxWidth' => 1024, 'maxHeight' => 1024]  // デフォルト: 1024x1024
+]);
 
 // Stripe設定
 define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY') ?: '');

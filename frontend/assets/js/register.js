@@ -434,6 +434,10 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
             const uploadResult = await uploadResponse.json();
             if (uploadResult.success) {
                 data.company_logo = uploadResult.data.file_path;
+                // Log resize info
+                if (uploadResult.data.was_resized) {
+                    console.log('Logo auto-resized:', uploadResult.data);
+                }
             }
         } catch (error) {
             console.error('Logo upload error:', error);
@@ -457,11 +461,13 @@ document.getElementById('header-greeting-form')?.addEventListener('submit', asyn
                 credentials: 'include'
             });
 
-            console.log(uploadResponse);
             const uploadResult = await uploadResponse.json();
-            console.log(uploadResult);
             if (uploadResult.success) {
                 data.profile_photo = uploadResult.data.file_path;
+                // Log resize info
+                if (uploadResult.data.was_resized) {
+                    console.log('Profile photo auto-resized:', uploadResult.data);
+                }
             }
         } catch (error) {
             console.error('Photo upload error:', error);
@@ -617,6 +623,10 @@ document.getElementById('personal-info-form')?.addEventListener('submit', async 
                 const fullPath = uploadResult.data.file_path;
                 const relativePath = fullPath.split('/php/')[1] || fullPath;
                 freeInputData.image = relativePath;
+                // Log resize info
+                if (uploadResult.data.was_resized) {
+                    console.log('Free image auto-resized:', uploadResult.data);
+                }
             }
         } catch (error) {
             console.error('Upload error:', error);
@@ -1400,7 +1410,15 @@ document.getElementById('profile_photo_header')?.addEventListener('change', (e) 
         reader.onload = (event) => {
             const preview = e.target.closest('.upload-area').querySelector('.upload-preview');
             if (preview) {
-                preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                // Get image dimensions
+                const img = new Image();
+                img.onload = () => {
+                    const resizeNote = (img.width > 800 || img.height > 800) 
+                        ? `<p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">アップロード時に自動リサイズされます (最大800×800px)</p>` 
+                        : '';
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">${resizeNote}`;
+                };
+                img.src = event.target.result;
             }
         };
         reader.readAsDataURL(file);
@@ -1414,7 +1432,15 @@ document.getElementById('company_logo')?.addEventListener('change', (e) => {
         reader.onload = (event) => {
             const preview = e.target.closest('.upload-area').querySelector('.upload-preview');
             if (preview) {
-                preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                // Get image dimensions
+                const img = new Image();
+                img.onload = () => {
+                    const resizeNote = (img.width > 400 || img.height > 400) 
+                        ? `<p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">アップロード時に自動リサイズされます (最大400×400px)</p>` 
+                        : '';
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">${resizeNote}`;
+                };
+                img.src = event.target.result;
             }
         };
         reader.readAsDataURL(file);
@@ -1428,7 +1454,15 @@ document.getElementById('free_image')?.addEventListener('change', (e) => {
         reader.onload = (event) => {
             const preview = e.target.closest('.upload-area').querySelector('.upload-preview');
             if (preview) {
-                preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                // Get image dimensions
+                const img = new Image();
+                img.onload = () => {
+                    const resizeNote = (img.width > 1200 || img.height > 1200) 
+                        ? `<p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">アップロード時に自動リサイズされます (最大1200×1200px)</p>` 
+                        : '';
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">${resizeNote}`;
+                };
+                img.src = event.target.result;
             }
         };
         reader.readAsDataURL(file);

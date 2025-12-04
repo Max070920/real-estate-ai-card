@@ -635,11 +635,28 @@ async function handleFileUpload(event, fieldName) {
         const result = await response.json();
         
         if (result.success) {
-            // Show preview
+            // Show preview with resize info
             const preview = event.target.closest('.upload-area').querySelector('.upload-preview');
             if (preview) {
                 const imagePath = result.data.file_path.startsWith('http') ? result.data.file_path : '../' + result.data.file_path;
-                preview.innerHTML = `<img src="${imagePath}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+
+                // Build resize info message
+                let resizeInfo = '';
+                if (result.data.was_resized) {
+                    const orig = result.data.original_dimensions;
+                    const final = result.data.final_dimensions;
+                    const origSize = result.data.original_size_kb;
+                    const finalSize = result.data.final_size_kb;
+                    resizeInfo = `<p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                        自動リサイズ: ${orig.width}×${orig.height} → ${final.width}×${final.height}px
+                        <br>(${origSize}KB → ${finalSize}KB)
+                    </p>`;
+                }
+
+                preview.innerHTML = `
+                    <img src="${imagePath}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    ${resizeInfo}
+                `;
             }
             
             // Update business card data
@@ -667,6 +684,11 @@ async function handleFileUpload(event, fieldName) {
             // Update preview
             if (businessCardData) {
                 updatePreview(businessCardData);
+            }
+
+            // Log resize info to console
+            if (result.data.was_resized) {
+                console.log('Image auto-resized:', result.data);
             }
         } else {
             alert('アップロードに失敗しました: ' + result.message);

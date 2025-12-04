@@ -19,10 +19,11 @@ $userId = $_SESSION['user_id'];
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>名刺編集 - 不動産AI名刺</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/edit.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
     <style>
         .btn-secondary {
             background: #6c757d;
@@ -350,6 +351,7 @@ $userId = $_SESSION['user_id'];
     </div>
 
     <script src="assets/js/edit.js"></script>
+    <script src="assets/js/mobile-menu.js"></script>
     <script>
         // Step 1: Header & Greeting form submission
         document.addEventListener('DOMContentLoaded', function() {

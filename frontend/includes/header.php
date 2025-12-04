@@ -15,6 +15,9 @@ startSessionIfNotStarted();
 $isLoggedIn = !empty($_SESSION['user_id']);
 $showNavLinks = isset($showNavLinks) ? $showNavLinks : true;
 ?>
+<!-- Mobile CSS -->
+<link rel="stylesheet" href="assets/css/mobile.css">
+
 <!-- Header -->
 <header class="header">
     <div class="container">
@@ -105,5 +108,8 @@ $showNavLinks = isset($showNavLinks) ? $showNavLinks : true;
     }
 })();
 </script>
+
+<!-- Mobile Menu Script -->
+<script src="assets/js/mobile-menu.js"></script>
 
 

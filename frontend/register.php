@@ -52,10 +52,11 @@ $prefectures = [
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>アカウント作成 - 不動産AI名刺</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/register.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
 </head>
 <body>
     <div class="register-container">
@@ -700,6 +701,7 @@ $prefectures = [
     <?php endif; ?>
 
     <script src="assets/js/register.js"></script>
+    <script src="assets/js/mobile-menu.js"></script>
     <script>
         // Modal functionality
         document.getElementById('modal-confirm-btn')?.addEventListener('click', function() {

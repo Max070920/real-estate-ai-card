@@ -118,24 +118,51 @@ function generateToken($length = 32) {
 
 /**
  * 画像リサイズ
+ * 
+ * @param string $filePath 画像ファイルパス
+ * @param int $maxWidth 最大幅
+ * @param int $maxHeight 最大高さ
+ * @param int $quality JPEG/WebP品質 (1-100)
+ * @return array|false リサイズ結果の配列、または失敗時はfalse
  */
 function resizeImage($filePath, $maxWidth = 800, $maxHeight = 800, $quality = 85) {
     if (!file_exists($filePath)) {
+        error_log("resizeImage: File not found - $filePath");
         return false;
     }
 
-    $imageInfo = getimagesize($filePath);
+    $imageInfo = @getimagesize($filePath);
     if ($imageInfo === false) {
+        error_log("resizeImage: Cannot get image info - $filePath");
         return false;
     }
 
     $originalWidth = $imageInfo[0];
     $originalHeight = $imageInfo[1];
     $mimeType = $imageInfo['mime'];
+    $originalSize = filesize($filePath);
+
+    // Check if image is too large to process (estimate memory needed)
+    // GD needs roughly: width * height * 4 bytes per pixel * 2 (source + dest)
+    $estimatedMemory = $originalWidth * $originalHeight * 4 * 2;
+    $memoryLimit = (int)ini_get('memory_limit') * 1024 * 1024;
+    
+    // If estimated memory is more than 50% of limit, increase memory limit
+    if ($estimatedMemory > $memoryLimit * 0.5) {
+        $neededMemory = $estimatedMemory * 2.5; // Add buffer
+        $newLimit = max(256, (int)($neededMemory / 1024 / 1024)) . 'M';
+        @ini_set('memory_limit', $newLimit);
+        error_log("resizeImage: Increased memory limit to $newLimit for {$originalWidth}x{$originalHeight} image");
+    }
 
     // リサイズ不要の場合
     if ($originalWidth <= $maxWidth && $originalHeight <= $maxHeight) {
-        return true;
+        error_log("resizeImage: No resize needed - {$originalWidth}x{$originalHeight} <= {$maxWidth}x{$maxHeight}");
+        return [
+            'resized' => false,
+            'original' => ['width' => $originalWidth, 'height' => $originalHeight, 'size' => $originalSize],
+            'final' => ['width' => $originalWidth, 'height' => $originalHeight, 'size' => $originalSize]
+        ];
     }
 
     // アスペクト比を保持してリサイズ
@@ -143,40 +170,55 @@ function resizeImage($filePath, $maxWidth = 800, $maxHeight = 800, $quality = 85
     $newWidth = (int)($originalWidth * $ratio);
     $newHeight = (int)($originalHeight * $ratio);
 
+    error_log("resizeImage: Resizing {$originalWidth}x{$originalHeight} -> {$newWidth}x{$newHeight}");
+
     // 画像リソース作成
+    $source = null;
     switch ($mimeType) {
         case 'image/jpeg':
-            $source = imagecreatefromjpeg($filePath);
+            $source = @imagecreatefromjpeg($filePath);
             break;
         case 'image/png':
-            $source = imagecreatefrompng($filePath);
+            $source = @imagecreatefrompng($filePath);
             break;
         case 'image/gif':
-            $source = imagecreatefromgif($filePath);
+            $source = @imagecreatefromgif($filePath);
             break;
         case 'image/webp':
-            $source = imagecreatefromwebp($filePath);
+            $source = @imagecreatefromwebp($filePath);
             break;
         default:
+            error_log("resizeImage: Unsupported mime type - $mimeType");
             return false;
     }
 
-    if ($source === false) {
+    if ($source === false || $source === null) {
+        error_log("resizeImage: Failed to create image from source - $filePath");
         return false;
     }
 
     // 新しい画像リソース作成
     $destination = imagecreatetruecolor($newWidth, $newHeight);
 
-    // PNG/GIFの透明度対応
-    if ($mimeType === 'image/png' || $mimeType === 'image/gif') {
+    if ($destination === false) {
+        imagedestroy($source);
+        error_log("resizeImage: Failed to create destination image");
+        return false;
+    }
+
+    // PNG/GIF/WebPの透明度対応
+    if ($mimeType === 'image/png' || $mimeType === 'image/gif' || $mimeType === 'image/webp') {
         imagealphablending($destination, false);
         imagesavealpha($destination, true);
         $transparent = imagecolorallocatealpha($destination, 255, 255, 255, 127);
         imagefilledrectangle($destination, 0, 0, $newWidth, $newHeight, $transparent);
+    } else {
+        // JPEGの場合は白い背景を設定
+        $white = imagecolorallocate($destination, 255, 255, 255);
+        imagefilledrectangle($destination, 0, 0, $newWidth, $newHeight, $white);
     }
 
-    // リサイズ
+    // リサイズ（高品質リサンプリング）
     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newWidth, $newHeight, $originalWidth, $originalHeight);
 
     // 保存
@@ -186,7 +228,9 @@ function resizeImage($filePath, $maxWidth = 800, $maxHeight = 800, $quality = 85
             $result = imagejpeg($destination, $filePath, $quality);
             break;
         case 'image/png':
-            $result = imagepng($destination, $filePath, 9);
+            // PNG compression level (0-9, 9 is max compression)
+            $pngQuality = (int)((100 - $quality) / 11.11);
+            $result = imagepng($destination, $filePath, min(9, max(0, $pngQuality)));
             break;
         case 'image/gif':
             $result = imagegif($destination, $filePath);
@@ -199,11 +243,31 @@ function resizeImage($filePath, $maxWidth = 800, $maxHeight = 800, $quality = 85
     imagedestroy($source);
     imagedestroy($destination);
 
-    return $result;
+    if (!$result) {
+        error_log("resizeImage: Failed to save resized image - $filePath");
+        return false;
+    }
+
+    $finalSize = filesize($filePath);
+    $compression = $originalSize > 0 ? round((1 - $finalSize / $originalSize) * 100, 1) : 0;
+
+    error_log("resizeImage: Success - {$originalWidth}x{$originalHeight} -> {$newWidth}x{$newHeight}, " . 
+              round($originalSize/1024, 2) . "KB -> " . round($finalSize/1024, 2) . "KB ({$compression}% reduced)");
+
+    return [
+        'resized' => true,
+        'original' => ['width' => $originalWidth, 'height' => $originalHeight, 'size' => $originalSize],
+        'final' => ['width' => $newWidth, 'height' => $newHeight, 'size' => $finalSize],
+        'compression' => $compression
+    ];
 }
 
 /**
  * ファイルアップロード
+ * 
+ * @param array $file $_FILES array element
+ * @param string $subDirectory Subdirectory (e.g., 'logo/', 'photo/', 'free/')
+ * @return array Success/failure with file info
  */
 function uploadFile($file, $subDirectory = '') {
     if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
@@ -211,10 +275,10 @@ function uploadFile($file, $subDirectory = '') {
         return ['success' => false, 'message' => 'ファイルがアップロードされていません'];
     }
 
-    // ファイルサイズチェック
+    // ファイルサイズチェック（リサイズ前の上限）
     if ($file['size'] > MAX_FILE_SIZE) {
         error_log("uploadFile: File too large - size: " . $file['size'] . ", max: " . MAX_FILE_SIZE);
-        return ['success' => false, 'message' => 'ファイルサイズが大きすぎます'];
+        return ['success' => false, 'message' => 'ファイルサイズが大きすぎます（最大: ' . (MAX_FILE_SIZE / 1024 / 1024) . 'MB）'];
     }
 
     // ファイルタイプチェック
@@ -238,11 +302,17 @@ function uploadFile($file, $subDirectory = '') {
     }
 
     // ファイル名生成
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $fileName = uniqid() . '_' . time() . '.' . $extension;
     $filePath = $uploadDir . $fileName;
 
-    error_log("uploadFile: Moving file to: $filePath");
+    // 元のファイル情報を取得
+    $originalSize = $file['size'];
+    $originalInfo = @getimagesize($file['tmp_name']);
+    $originalWidth = $originalInfo ? $originalInfo[0] : 0;
+    $originalHeight = $originalInfo ? $originalInfo[1] : 0;
+
+    error_log("uploadFile: Moving file to: $filePath (Original: {$originalWidth}x{$originalHeight}, " . round($originalSize / 1024, 2) . "KB)");
 
     // ファイル移動
     if (!move_uploaded_file($file['tmp_name'], $filePath)) {
@@ -250,17 +320,75 @@ function uploadFile($file, $subDirectory = '') {
         return ['success' => false, 'message' => 'ファイルの移動に失敗しました'];
     }
 
-    // 画像リサイズ
-    resizeImage($filePath);
+    // 画像リサイズ（有効な場合）
+    $resizeInfo = null;
+    if (defined('IMAGE_RESIZE_ENABLED') && IMAGE_RESIZE_ENABLED) {
+        try {
+            $resizeInfo = resizeImageWithType($filePath, $subDirectory);
+        } catch (Exception $e) {
+            error_log("uploadFile: Resize failed - " . $e->getMessage());
+            $resizeInfo = null;
+        }
+    }
+
+    // リサイズ後のファイル情報
+    $finalSize = filesize($filePath);
+    $finalInfo = @getimagesize($filePath);
+    $finalWidth = $finalInfo ? $finalInfo[0] : $originalWidth;
+    $finalHeight = $finalInfo ? $finalInfo[1] : $originalHeight;
 
     $relativePath = 'backend/uploads/' . $subDirectory . $fileName;
+
+    error_log("uploadFile: Success - Final: {$finalWidth}x{$finalHeight}, " . round($finalSize / 1024, 2) . "KB");
     
     return [
         'success' => true,
         'file_path' => $relativePath,
         'file_name' => $fileName,
-        'mime_type' => $mimeType
+        'mime_type' => $mimeType,
+        'original_size' => $originalSize,
+        'final_size' => $finalSize,
+        'original_dimensions' => ['width' => $originalWidth, 'height' => $originalHeight],
+        'final_dimensions' => ['width' => $finalWidth, 'height' => $finalHeight],
+        'was_resized' => $resizeInfo !== null && $resizeInfo !== false
     ];
+}
+
+/**
+ * アップロードタイプに応じて画像をリサイズ
+ * 
+ * @param string $filePath File path
+ * @param string $subDirectory Upload type directory (e.g., 'logo/', 'photo/')
+ * @return bool|array Resize result
+ */
+function resizeImageWithType($filePath, $subDirectory = '') {
+    try {
+        // サブディレクトリからタイプを判定
+        $type = trim($subDirectory, '/');
+        
+        // 設定から適切なサイズを取得
+        $defaultSizes = [
+            'logo' => ['maxWidth' => 400, 'maxHeight' => 400],
+            'photo' => ['maxWidth' => 800, 'maxHeight' => 800],
+            'free' => ['maxWidth' => 1200, 'maxHeight' => 1200],
+            'default' => ['maxWidth' => 1024, 'maxHeight' => 1024]
+        ];
+        
+        $sizes = defined('IMAGE_SIZES') ? IMAGE_SIZES : $defaultSizes;
+        
+        $sizeConfig = isset($sizes[$type]) ? $sizes[$type] : (isset($sizes['default']) ? $sizes['default'] : $defaultSizes['default']);
+        $quality = defined('IMAGE_QUALITY') ? IMAGE_QUALITY : 85;
+        
+        $maxWidth = isset($sizeConfig['maxWidth']) ? $sizeConfig['maxWidth'] : 1024;
+        $maxHeight = isset($sizeConfig['maxHeight']) ? $sizeConfig['maxHeight'] : 1024;
+        
+        error_log("resizeImageWithType: Type=$type, MaxSize={$maxWidth}x{$maxHeight}, Quality=$quality");
+        
+        return resizeImage($filePath, $maxWidth, $maxHeight, $quality);
+    } catch (Exception $e) {
+        error_log("resizeImageWithType Error: " . $e->getMessage());
+        return false;
+    }
 }
 
 /**

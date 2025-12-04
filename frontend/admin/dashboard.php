@@ -102,9 +102,11 @@ $users = $stmt->fetchAll();
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>管理画面 - 不動産AI名刺</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
+    <link rel="stylesheet" href="../assets/css/admin-mobile.css">
 </head>
 <body>
     <div class="admin-container">
@@ -155,30 +157,30 @@ $users = $stmt->fetchAll();
                 <tbody>
                     <?php foreach ($users as $user): ?>
                     <tr>
-                        <td>
+                        <td data-label="入金">
                             <input type="checkbox" class="payment-checkbox" 
                                    data-bc-id="<?php echo $user['id']; ?>"
                                    <?php echo $user['payment_confirmed'] ? 'checked' : ''; ?>>
                         </td>
-                        <td>
+                        <td data-label="OPEN">
                             <input type="checkbox" class="open-checkbox" 
                                    data-bc-id="<?php echo $user['id']; ?>"
                                    <?php echo $user['is_open'] ? 'checked' : ''; ?>>
                         </td>
-                        <td><?php echo htmlspecialchars($user['company_name'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($user['mobile_phone'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                        <td><?php echo $user['monthly_views']; ?></td>
-                        <td><?php echo $user['total_views']; ?></td>
-                        <td>
-                            <a href="<?php echo BASE_URL; ?>/frontend/card.php?slug=<?php echo htmlspecialchars($user['url_slug']); ?>" target="_blank">
+                        <td data-label="社名"><?php echo htmlspecialchars($user['company_name'] ?? ''); ?></td>
+                        <td data-label="名前"><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
+                        <td data-label="携帯"><?php echo htmlspecialchars($user['mobile_phone'] ?? ''); ?></td>
+                        <td data-label="メール"><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td data-label="表示回数（1か月）"><?php echo $user['monthly_views']; ?></td>
+                        <td data-label="表示回数（累積）"><?php echo $user['total_views']; ?></td>
+                        <td data-label="名刺URL">
+                            <a href="<?php echo BASE_URL; ?>/frontend/card.php?slug=<?php echo htmlspecialchars($user['url_slug']); ?>" target="_blank" style="word-break: break-all; color: #0066cc;">
                                 <?php echo htmlspecialchars(BASE_URL . '/card.php?slug=' . $user['url_slug']); ?>
                             </a>
                         </td>
-                        <td><?php echo htmlspecialchars($user['registered_at']); ?></td>
-                        <td><?php echo htmlspecialchars($user['last_login_at'] ?? ''); ?></td>
-                        <td>
+                        <td data-label="登録日"><?php echo htmlspecialchars($user['registered_at']); ?></td>
+                        <td data-label="最終ログイン"><?php echo htmlspecialchars($user['last_login_at'] ?? ''); ?></td>
+                        <td data-label="操作">
                             <button class="btn-action" onclick="confirmPayment(<?php echo $user['id']; ?>)">入金確認</button>
                         </td>
                     </tr>
