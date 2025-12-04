@@ -45,6 +45,8 @@ async function loadBusinessCardData() {
             updatePreview(businessCardData);
         } else {
             console.error('Failed to load business card data:', result);
+            // Still display tech tools even if data load fails
+            displayTechTools([]);
             const errorMsg = result.message || 'データの読み込みに失敗しました';
             if (previewContent) {
                 previewContent.innerHTML = `<p style="color: red;">${errorMsg}</p>`;
@@ -53,6 +55,8 @@ async function loadBusinessCardData() {
         }
     } catch (error) {
         console.error('Error loading business card data:', error);
+        // Still display tech tools even if there's an error
+        displayTechTools([]);
         const errorMsg = error.message || 'エラーが発生しました';
         if (previewContent) {
             previewContent.innerHTML = `<p style="color: red;">${errorMsg}</p>`;
@@ -260,13 +264,10 @@ function populateForms(data) {
         }
     }
     
-    // Step 4: Tech Tools
-    if (data.tech_tools && Array.isArray(data.tech_tools) && data.tech_tools.length > 0) {
-        console.log('Displaying tech tools:', data.tech_tools);
-        displayTechTools(data.tech_tools);
-    } else {
-        console.log('No tech tools to display');
-    }
+    // Step 4: Tech Tools - Always display all tools (even if none selected)
+    const techTools = (data.tech_tools && Array.isArray(data.tech_tools)) ? data.tech_tools : [];
+    console.log('Displaying tech tools:', techTools);
+    displayTechTools(techTools);
     
     // Step 5: Communication Methods
     if (data.communication_methods && Array.isArray(data.communication_methods) && data.communication_methods.length > 0) {
@@ -413,7 +414,7 @@ function updateGreetingButtons() {
     });
 }
 
-// Display tech tools
+// Display tech tools (same format as register.php)
 function displayTechTools(techTools) {
     const techToolsList = document.getElementById('tech-tools-list');
     if (!techToolsList) {
@@ -421,22 +422,43 @@ function displayTechTools(techTools) {
         return;
     }
     
-    const toolNames = {
-        'mdb': '全国マンションデータベース',
-        'rlp': '物件提案ロボ',
-        'llp': '土地情報ロボ',
-        'ai': 'AIマンション査定',
-        'slp': 'セルフィン',
-        'olp': 'オーナーコネクト'
-    };
-    
-    const toolIcons = {
-        'mdb': '🏢',
-        'rlp': '🤖',
-        'llp': '🏞️',
-        'ai': '📊',
-        'slp': '🔍',
-        'olp': '💼'
+    const toolData = {
+        'mdb': {
+            name: '全国マンションデータベース',
+            icon: '🏢',
+            description: '全国の分譲マンションの95％以上を網羅',
+            id: 'tool-mdb-edit'
+        },
+        'rlp': {
+            name: '物件提案ロボ',
+            icon: '🤖',
+            description: '希望条件に合致した物件情報を自動配信',
+            id: 'tool-rlp-edit'
+        },
+        'llp': {
+            name: '土地情報ロボ',
+            icon: '🏞️',
+            description: '希望条件に合致した土地情報を自動配信',
+            id: 'tool-llp-edit'
+        },
+        'ai': {
+            name: 'AIマンション査定',
+            icon: '📊',
+            description: '個人情報不要でマンションの査定を実施',
+            id: 'tool-ai-edit'
+        },
+        'slp': {
+            name: 'セルフィン',
+            icon: '🔍',
+            description: '物件の良し悪しを自動判定するツール',
+            id: 'tool-slp-edit'
+        },
+        'olp': {
+            name: 'オーナーコネクト',
+            icon: '💼',
+            description: 'マンション所有者向けの資産ウォッチツール',
+            id: 'tool-olp-edit'
+        }
     };
     
     // All available tools
@@ -444,31 +466,33 @@ function displayTechTools(techTools) {
     
     techToolsList.innerHTML = '';
     
-    // Display all tools, marking which ones are selected
-    allTools.forEach((toolType, index) => {
-        const existingTool = techTools.find(t => t.tool_type === toolType);
+    // Display all tools in card grid format (same as register.php)
+    allTools.forEach((toolType) => {
+        const tool = toolData[toolType];
+        const existingTool = techTools ? techTools.find(t => t.tool_type === toolType) : null;
         const isActive = existingTool ? (existingTool.is_active === 1 || existingTool.is_active === true) : false;
         
-        const toolItem = document.createElement('div');
-        toolItem.className = 'tech-tool-item';
-        toolItem.style.cssText = 'margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;';
+        const toolCard = document.createElement('div');
+        toolCard.className = 'tech-tool-card';
         if (existingTool) {
-            toolItem.dataset.id = existingTool.id;
+            toolCard.dataset.id = existingTool.id;
         }
-        toolItem.dataset.toolType = toolType;
-        toolItem.innerHTML = `
-            <label class="tech-tool-checkbox" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleTechTool('${toolType}', this.checked)">
-                <div class="tool-icon" style="font-size: 24px;">${toolIcons[toolType] || '📋'}</div>
-                <div>
-                    <div style="font-weight: bold;">${toolNames[toolType] || toolType}</div>
-                    ${existingTool && existingTool.tool_url ? `<div style="font-size: 0.85rem; color: #666;">${existingTool.tool_url}</div>` : ''}
-                </div>
+        toolCard.dataset.toolType = toolType;
+
+        toolCard.innerHTML = `
+            <input type="checkbox" id="${tool.id}" ${isActive ? 'checked' : ''}>
+            <label for="${tool.id}">
+                <div class="tool-icon">${tool.icon}</div>
+                <h4>${tool.name}</h4>
+                <p>${tool.description}</p>
             </label>
         `;
-        techToolsList.appendChild(toolItem);
+
+        techToolsList.appendChild(toolCard);
     });
-    
+
+    // No event listeners needed - checkboxes will be read when save button is clicked
+    // The visual state is handled by CSS (checked state styling)
     console.log('Tech tools displayed:', techTools);
 }
 
@@ -786,12 +810,12 @@ function deleteGreeting(id) {
     saveGreetings();
 }
 
-// Toggle tech tool
-async function toggleTechTool(toolTypeOrId, isActive) {
-    console.log('Toggle tech tool:', toolTypeOrId, isActive);
-    
-    // Save immediately
-    await saveTechTools();
+// Toggle tech tool (deprecated - no longer auto-saves)
+// Tech tools are now only saved when the "保存" button is clicked
+function toggleTechTool(toolTypeOrId, isActive) {
+    // Just update visual state - no auto-save
+    // The checkbox state is already handled by the browser
+    console.log('Tech tool toggled:', toolTypeOrId, isActive);
 }
 
 // Save tech tools
@@ -802,13 +826,14 @@ async function saveTechTools() {
         return;
     }
     
-    const toolItems = techToolsList.querySelectorAll('.tech-tool-item');
+    // Use .tech-tool-card selector (matches the new card format)
+    const toolCards = techToolsList.querySelectorAll('.tech-tool-card');
     const selectedToolTypes = [];
     
-    toolItems.forEach(item => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
+    toolCards.forEach(card => {
+        const checkbox = card.querySelector('input[type="checkbox"]');
         if (checkbox && checkbox.checked) {
-            selectedToolTypes.push(item.dataset.toolType);
+            selectedToolTypes.push(card.dataset.toolType);
         }
     });
     

@@ -327,8 +327,10 @@ $userId = $_SESSION['user_id'];
                 <div id="tech-tools-section" class="edit-section">
                     <h2>テックツール選択</h2>
                     <p class="step-description">表示させるテックツールを選択してください（最低2つ以上）</p>
-                    <div id="tech-tools-list"></div>
-                    <button type="button" class="btn-primary" onclick="saveTechTools()">保存</button>
+                    <div id="tech-tools-list" class="tech-tools-grid"></div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="saveTechTools()">保存</button>
+                    </div>
                 </div>
 
                 <!-- Step 5: Communication Functions -->

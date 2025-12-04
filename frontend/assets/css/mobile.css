@@ -322,8 +322,8 @@
 
     .register-content,
     .login-box {
-        padding: 1.5rem;
-        margin: 0 1rem;
+        padding: 0.5rem;
+        margin: 0;
     }
 
     /* Form groups */
@@ -431,19 +431,46 @@
     }
 
     .step-indicator {
-        flex-wrap: wrap;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
         gap: 0.5rem;
         margin-bottom: 2rem;
-        padding: 0 0.5rem;
+        padding: 0.5rem;
+        /* Make scrollbar visible */
+        scrollbar-width: thin;
+        scrollbar-color: #0066cc #f0f0f0;
+    }
+
+    .step-indicator::-webkit-scrollbar {
+        display: block;
+        height: 8px;
+    }
+
+    .step-indicator::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .step-indicator::-webkit-scrollbar-thumb {
+        background: #0066cc;
+        border-radius: 4px;
+    }
+
+    .step-indicator::-webkit-scrollbar-thumb:hover {
+        background: #0052a3;
     }
 
     .step-indicator::before {
-        display: none; /* Hide connecting line on very small screens */
+        display: none; /* Hide connecting line on mobile */
     }
 
     .step {
-        flex: 0 0 calc(50% - 0.25rem);
-        margin-bottom: 1rem;
+        flex: 0 0 auto;
+        min-width: 80px;
+        margin-bottom: 0;
     }
 
     .step-circle {
@@ -458,31 +485,21 @@
         line-height: 1.3;
     }
 
-    /* Stack steps vertically on very small screens */
+    /* Keep horizontal layout even on very small screens, just make items smaller */
     @media (max-width: 480px) {
         .step {
-            flex: 0 0 100%;
-        }
-
-        .step-indicator {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .step {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 1rem;
+            flex: 0 0 auto;
+            min-width: 70px;
         }
 
         .step-circle {
-            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            font-size: 0.85rem;
         }
 
         .step-label {
-            text-align: left;
+            font-size: 0.65rem;
         }
     }
 }
@@ -673,14 +690,30 @@
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
         padding: 0.75rem;
         gap: 0.5rem;
+        /* Make scrollbar visible */
+        scrollbar-width: thin;
+        scrollbar-color: #0066cc #f0f0f0;
     }
 
     .edit-nav::-webkit-scrollbar {
-        display: none;
+        display: block;
+        height: 8px;
+    }
+
+    .edit-nav::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .edit-nav::-webkit-scrollbar-thumb {
+        background: #0066cc;
+        border-radius: 4px;
+    }
+
+    .edit-nav::-webkit-scrollbar-thumb:hover {
+        background: #0052a3;
     }
 
     .nav-item {
@@ -697,7 +730,6 @@
 
     .nav-item.active {
         border-left: none;
-        border-bottom-color: #0066cc;
         background: #f0f7ff;
     }
 

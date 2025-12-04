@@ -535,7 +535,30 @@ body {
     .edit-nav {
         flex-direction: row;
         overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
         padding: 0.5rem;
+        /* Make scrollbar visible */
+        scrollbar-width: thin;
+    }
+
+    .edit-nav::-webkit-scrollbar {
+        display: block;
+        height: 8px;
+    }
+
+    .edit-nav::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .edit-nav::-webkit-scrollbar-thumb {
+        background: #0066cc;
+        border-radius: 4px;
+    }
+
+    .edit-nav::-webkit-scrollbar-thumb:hover {
+        background: #0052a3;
     }
 
     .nav-item {
@@ -547,7 +570,7 @@ body {
 
     .nav-item.active {
         border-left: none;
-        border-bottom-color: #0066cc;
+        /* border-bottom-color: #0066cc; */
     }
 
     .edit-main {
