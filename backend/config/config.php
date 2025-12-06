@@ -3,6 +3,12 @@
  * Application Configuration
  */
 
+// Load local secrets if exists (not committed to git)
+$secretsFile = __DIR__ . '/secrets.php';
+if (file_exists($secretsFile)) {
+    require_once $secretsFile;
+}
+
 // 環境設定
 define('ENVIRONMENT', 'development'); // development, production
 
