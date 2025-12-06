@@ -39,19 +39,64 @@ try {
     ");
     
     $stmt->execute([$input['email']]);
-    $user = $stmt->fetch();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // ユーザーが見つからない場合、管理者テーブルを確認
     if (!$user) {
-        sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
+        $adminStmt = $db->prepare("SELECT * FROM admins WHERE email = ?");
+        $adminStmt->execute([$input['email']]);
+        $admin = $adminStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($admin) {
+            // 管理者アカウントが見つかった場合、パスワードを検証
+            $storedHash = trim($admin['password_hash']);
+            $inputPassword = trim($input['password']);
+            $passwordValid = verifyPassword($inputPassword, $storedHash);
+            
+            // プレーンテキストのパスワードが検出された場合、自動的に再ハッシュ化
+            if (!$passwordValid && $inputPassword === $storedHash) {
+                $newHash = hashPassword($inputPassword);
+                $updateStmt = $db->prepare("UPDATE admins SET password_hash = ?, last_password_change = NOW() WHERE id = ?");
+                $updateStmt->execute([$newHash, $admin['id']]);
+                error_log("SECURITY: Plain text password detected and rehashed for admin ID: " . $admin['id']);
+                $passwordValid = true;
+            }
+            
+            if ($passwordValid) {
+                // 管理者としてログイン成功 - セッション設定
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_email'] = $admin['email'];
+                $_SESSION['admin_role'] = $admin['role'];
+                
+                // 最終ログイン時刻更新
+                $updateStmt = $db->prepare("UPDATE admins SET last_login_at = NOW() WHERE id = ?");
+                $updateStmt->execute([$admin['id']]);
+                
+                sendSuccessResponse([
+                    'admin_id' => $admin['id'],
+                    'email' => $admin['email'],
+                    'role' => $admin['role'],
+                    'is_admin' => true,
+                    'redirect' => 'admin/dashboard.php'
+                ], 'ログインに成功しました');
+            } else {
+                sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
+            }
+            exit;
+        } else {
+            sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
+        }
     }
 
     // パスワード検証
-    $passwordValid = verifyPassword($input['password'], $user['password_hash']);
+    $storedHash = trim($user['password_hash']);
+    $inputPassword = trim($input['password']);
+    $passwordValid = verifyPassword($inputPassword, $storedHash);
     
     // プレーンテキストのパスワードが検出された場合、自動的に再ハッシュ化
-    if (!$passwordValid && $input['password'] === $user['password_hash']) {
+    if (!$passwordValid && $inputPassword === $storedHash) {
         // プレーンテキストが検出されたので、適切にハッシュ化して保存
-        $newHash = hashPassword($input['password']);
+        $newHash = hashPassword($inputPassword);
         $updateStmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
         $updateStmt->execute([$newHash, $user['id']]);
         

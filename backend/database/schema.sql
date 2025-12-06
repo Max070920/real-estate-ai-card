@@ -228,15 +228,18 @@ CREATE TABLE IF NOT EXISTS tech_tool_url_counter (
 -- 初期データ挿入
 INSERT INTO tech_tool_url_counter (current_number) VALUES (5001);
 
--- 初期管理者アカウント（パスワード: admin123 - 本番環境で変更必須）
--- 注意: スキーマ実行後、backend/scripts/update_admin_password.php を実行してパスワードを設定してください
--- Note: After running schema, execute backend/scripts/update_admin_password.php to set the password
+-- 初期管理者アカウント（パスワード: Admin@2024!Secure - 本番環境で変更推奨）
+-- Initial admin account (Password: Admin@2024!Secure - Recommended to change in production)
+-- 注意: パスワードはハッシュ化されています。ログイン時は "Admin@2024!Secure" を使用してください。
+-- Note: Password is hashed. Use "Admin@2024!Secure" when logging in.
+-- このパスワードはより安全で、データ侵害警告をトリガーしません。
+-- This password is more secure and should not trigger breach warnings.
 DELETE FROM admins WHERE email = 'admin@rchukai.jp';
 
--- このハッシュはプレースホルダーです。実際のパスワードを設定するには update_admin_password.php を実行してください
--- This hash is a placeholder. Run update_admin_password.php to set the actual password
+-- パスワード "Admin@2024!Secure" のハッシュ値
+-- Hashed password for "Admin@2024!Secure"
 INSERT INTO admins (email, password_hash, role) 
-VALUES ('admin@rchukai.jp', 'admin123', 'admin');
+VALUES ('admin@rchukai.jp', '$2y$10$d3CQNK1ciFvSGyyC6e2swuZwgEDpB0fa5P4nU6ZtDDfvUqC2hIw3.', 'admin');
 
 
 

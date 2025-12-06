@@ -31,47 +31,36 @@ try {
 
     $stmt = $db->prepare("SELECT * FROM admins WHERE email = ?");
     $stmt->execute([$input['email']]);
-    $admin = $stmt->fetch();
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$admin) {
         sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
     }
 
     // パスワード検証
-    //$storedHash = trim($admin['password_hash']); // Trim any whitespace
-    // $passwordValid = verifyPassword($input['password'], $storedHash);
-    if($admin['password_hash'] === $input['password']) {
-        $passwordValid = true;
-    }
-    // デバッグ用ログ（本番環境では削除）
-    // if (ENVIRONMENT === 'development') {
-    //     error_log("Admin Login Debug - Email: " . $input['email']);
-    //     error_log("Admin Login Debug - Hash length: " . strlen($storedHash));
-    //     error_log("Admin Login Debug - Hash starts with: " . substr($storedHash, 0, 7));
-    //     error_log("Admin Login Debug - Password valid: " . ($passwordValid ? 'true' : 'false'));
-    // }
+    $storedHash = trim($admin['password_hash']);
+    $inputPassword = trim($input['password']);
+    $passwordValid = verifyPassword($inputPassword, $storedHash);
     
     // プレーンテキストのパスワードが検出された場合、自動的に再ハッシュ化
-    // if (!$passwordValid && $input['password'] === $storedHash) {
-    //     // プレーンテキストが検出されたので、適切にハッシュ化して保存
-    //     $newHash = hashPassword($input['password']);
-    //     $updateStmt = $db->prepare("UPDATE admins SET password_hash = ?, last_password_change = NOW() WHERE id = ?");
-    //     $updateStmt->execute([$newHash, $admin['id']]);
+    if (!$passwordValid && $inputPassword === $storedHash) {
+        // プレーンテキストが検出されたので、適切にハッシュ化して保存
+        $newHash = hashPassword($inputPassword);
+        $updateStmt = $db->prepare("UPDATE admins SET password_hash = ?, last_password_change = NOW() WHERE id = ?");
+        $updateStmt->execute([$newHash, $admin['id']]);
         
-    //     error_log("SECURITY: Plain text password detected and rehashed for admin ID: " . $admin['id']);
-    //     $passwordValid = true; // 再ハッシュ化後、認証を許可
-    // }
-    
-    // ハッシュが正しい形式だが検証に失敗した場合、直接password_verifyを試す
-    // if (!$passwordValid && preg_match('/^\$2[ayb]\$\d{2}\$/', $storedHash)) {
-    //     $directVerify = password_verify($input['password'], $storedHash);
-    //     if ($directVerify) {
-    //         error_log("Admin Login: verifyPassword failed but password_verify succeeded - possible function issue");
-    //         $passwordValid = true;
-    //     }
-    // }
+        error_log("SECURITY: Plain text password detected and rehashed for admin ID: " . $admin['id']);
+        $passwordValid = true; // 再ハッシュ化後、認証を許可
+    }
     
     if (!$passwordValid) {
+        // Debug logging (remove in production)
+        if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+            error_log("Admin Login Failed - Email: " . $input['email']);
+            error_log("Admin Login Failed - Hash in DB: " . substr($storedHash, 0, 20) . "...");
+            error_log("Admin Login Failed - Hash length: " . strlen($storedHash));
+            error_log("Admin Login Failed - Is bcrypt: " . (preg_match('/^\$2[ayb]\$\d{2}\$/', $storedHash) ? 'Yes' : 'No'));
+        }
         sendErrorResponse('メールアドレスまたはパスワードが正しくありません', 401);
     }
 

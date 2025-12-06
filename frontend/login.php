@@ -185,7 +185,12 @@ startSessionIfNotStarted();
                 const result = await response.json();
                 
                 if (result.success) {
-                    window.location.href = 'edit.php';
+                    // 管理者の場合は管理者ダッシュボードへ、通常ユーザーは編集ページへ
+                    if (result.data.is_admin && result.data.redirect) {
+                        window.location.href = result.data.redirect;
+                    } else {
+                        window.location.href = 'edit.php';
+                    }
                 } else {
                     const errorMsg = result.message || 'ログインに失敗しました';
                     document.getElementById('error-message').textContent = errorMsg;
